@@ -1,5 +1,11 @@
 # SLAXML
-SLAXML is a SAX-like streaming XML parser for Lua
+SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust than 
+many (simpler) pattern-based parsers that exist ([such as mine][1]), supporting code like `<foo test="5>7"/>`, CDATA nodes and comments and processing instructions.
+
+It is currently not a truly valid XML parser, however, as it allows completely invalid XML such
+as `<foo></bar>` to be parsed and reported as such. It is also not namespace-aware. See the "Limitations / TODO" section below for more details.
+
+[1] http://phrogz.net/lua/AKLOMParser.lua
 
 # Usage
     require 'slaxml'
@@ -31,12 +37,13 @@ If you just want to see if it parses your document correctly, you can also use j
 ## v0.1 2013-Feb-7
 ### Features
 + Option to ignore whitespace-only text nodes
++ Supports unescaped > in attributes
 + Supports CDATA
 + Supports Comments
 + Supports Processing Instructions
-+ Supports unescaped > in attributes
 
 ### Limitations / TODO
+- Does not require or enforce well-formed XML (or report/fail on invalid)
 - No support for namespaces:
   - xmlns="…" attributes look like any other
   - xmlns:foo="…" attributes will report name as "xmlns:foo"
