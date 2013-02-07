@@ -5,7 +5,7 @@ many (simpler) pattern-based parsers that exist ([such as mine][1]), supporting 
 It is currently not a truly valid XML parser, however, as it allows completely invalid XML such
 as `<foo></bar>` to be parsed and reported as such. It is also not namespace-aware. See the "Limitations / TODO" section below for more details.
 
-[1] http://phrogz.net/lua/AKLOMParser.lua
+[1]: http://phrogz.net/lua/AKLOMParser.lua
 
 # Usage
     require 'slaxml'
