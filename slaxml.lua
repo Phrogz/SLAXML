@@ -1,9 +1,9 @@
 --[=====================================================================[
-SAX-like streaming XML parser for Lua
-Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.1 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
+	VERSION = "0.1",
 	ignoreWhitespace = true,
 	_call = {
 		pi = function(target,content)
