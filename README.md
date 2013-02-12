@@ -1,6 +1,6 @@
 # SLAXML
 SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust than 
-many (simpler) pattern-based parsers that exist ([such as mine][1]), supporting code like `<foo test="5>7"/>`, CDATA nodes and comments and processing instructions.
+many (simpler) pattern-based parsers that exist ([such as mine][1]), propertly supporting code like `<expr test="5 > 7" />`, CDATA nodes, comments, and processing instructions.
 
 It is currently not a truly valid XML parser, however, as it allows completely invalid XML such
 as `<foo></bar>` to be parsed and reported as such. It is also not namespace-aware. See the "Limitations / TODO" section below for more details.
@@ -45,13 +45,13 @@ If you just want to see if it parses your document correctly, you can also use j
 ### Limitations / TODO
 - Does not require or enforce well-formed XML (or report/fail on invalid)
 - No support for namespaces:
-  - xmlns="…" attributes look like any other
-  - xmlns:foo="…" attributes will report name as "xmlns:foo"
-  - <foo:bar> elements will report name as "foo:bar"
-  - foo:bar="…" attributes will report name as "foo:bar"
+  - `xmlns="…"` attributes look like any other
+  - `xmlns:foo="…"` attributes will report name as "xmlns:foo"
+  - `<foo:bar>` elements will report name as "foo:bar"
+  - `foo:bar="…"` attributes will report name as "foo:bar"
 - No support for entity expansion other than
-  &lt; &gt; &quot; &apos; &amp;
-- XML Declarations <?xml version="1.x"?> are incorrectly reported
+  `&lt; &gt; &quot; &apos; &amp;`
+- XML Declarations (`<?xml version="1.x"?>`) are incorrectly reported
   as Processing Instructions
 - No support for DTDs
 - No support for extended characters in element/attribute names
@@ -59,4 +59,4 @@ If you just want to see if it parses your document correctly, you can also use j
 # License
 Copyright © 2013 [Gavin Kistner](mailto:!@phrogz.net)
 
-Licensed under the MIT License. See LICENSE.txt for more details.
+Licensed under the [MIT License](http://opensource.org/licenses/MIT). See LICENSE.txt for more details.
