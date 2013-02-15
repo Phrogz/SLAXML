@@ -4,6 +4,7 @@ require 'slaxml'
 require 'io'
 require 'lunity'
 
+
 module( 'TEST_LXSC', lunity )
 
 local XML = {}
@@ -11,6 +12,7 @@ for filename in io.popen('ls files'):lines() do
 	XML[filename:match('^(.-)%.[^.]+$')] = io.open("files/"..filename):read('*all')
 end
 
+	local doc = SLAXML:parse(XML['entities_and_namespaces'])
 
 function test_dom()
 	local doc = SLAXML:dom(XML['entities_and_namespaces'])
@@ -58,9 +60,10 @@ function test_namespaces()
 	local doc = SLAXML:dom(XML['entities_and_namespaces'])
 	local s = doc.root.el[1]
 	local p = doc.root.el[2].el[1].el[2]
-	local foo  = doc.root.el[2].el[1].el[3]
+	local t = doc.root.el[2].el[1]
+	local foo  = t.el[3]
 	local bar1 = foo.el[1]
-	local bar2 = doc.root.el[2].el[1].el[5]
+	local bar2 = t.el[4]
 
 	assertEqual(doc.root.nsURI,scxmlNS)
 	assertEqual(s.nsURI,scxmlNS)
@@ -74,3 +77,4 @@ function test_namespaces()
 end
 
 runTests{ useANSI=false }
+

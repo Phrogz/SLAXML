@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.2 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
-	VERSION = "0.2",
+	VERSION = "0.3",
 	ignoreWhitespace = true,
 	_call = {
 		pi = function(target,content)
@@ -12,17 +12,20 @@ SLAXML = {
 		comment = function(content)
 			print(string.format("<!-- %s -->",content))
 		end,
-		startElement = function(name)
-			print(string.format("<%s>",name))
+		startElement = function(name,nsURI)
+			print(string.format("<%s %s>",name,nsURI or "-"))
 		end,
-		attribute = function(name,value)
-			print(string.format("  %s=%q",name,value))
+		attribute = function(name,value,nsURI)
+			print(string.format("  %s=%q (%s)",name,value,nsURI or "-"))
 		end,
 		text = function(text)
 			print(string.format("  text: %q",text))
 		end,
 		closeElement = function(name)
 			print(string.format("</%s>",name))
+		end,
+		namespace = function(nsURI) -- applies a default namespace to the current element
+			print(string.format("  (xmlns=%s)",nsURI))
 		end,
 	}
 }
@@ -33,13 +36,14 @@ end
 
 function SLAXML:parse(xml)
 	-- Cache references for maximum speed
-	local find, sub, gsub, char = string.find, string.sub, string.gsub, string.char
+	local find, sub, gsub, char, push, pop = string.find, string.sub, string.gsub, string.char, table.insert, table.remove
 	-- local sub, gsub, find, push, pop, unescape = string.sub, string.gsub, string.find, table.insert, table.remove, unescape
-	local first, last, match1, match2, pos2
+	local first, last, match1, match2, match3, pos2, nsURI
 	local pos = 1
 	local state = "text"
 	local textStart = 1
 	local currentElement
+	local nsStack = {}
 
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
 	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char(s) or orig end
@@ -79,13 +83,29 @@ function SLAXML:parse(xml)
 		end
 	end
 
+	local function nsForPrefix(prefix)
+		for i=#nsStack,1,-1 do if nsStack[i][prefix] then return nsStack[i][prefix] end end
+		error(("Cannot find namespace for prefix %s"):format(prefix))
+	end
+
 	local function startElement()
-		first, last, match1 = find( xml, '^<([:%a_][:%w_.-]*)', pos )
+		first, last, match1 = find( xml, '^<([%a_][%w_.-]*)', pos )
 		if first then
+			nsURI = nil
 			finishText()
-			currentElement = match1
-			if self._call.startElement then self._call.startElement(match1) end
 			pos = last+1
+			first,last,match2 = find(xml, '^:([%a_][%w_.-]*)', pos )
+			if first then
+				nsURI = nsForPrefix(match1)
+				currentElement = match2
+				match1 = match2
+				pos = last+1
+			else
+				currentElement = match1
+				for i=#nsStack,1,-1 do if nsStack[i]['!'] then nsURI = nsStack[i]['!']; break end end
+			end
+			if self._call.startElement then self._call.startElement(match1,nsURI) end
+			push(nsStack,{})
 			return true
 		end
 	end
@@ -96,18 +116,34 @@ function SLAXML:parse(xml)
 			pos2 = last+1
 			first, last, match2 = find( xml, '^"([^<"]+)"', pos2 ) -- FIXME: disallow non-entity ampersands
 			if first then
-				if self._call.attribute then self._call.attribute(match1,unescape(match2)) end
 				pos = last+1
-				return true
+				match2 = unescape(match2)
 			else
 				first, last, match2 = find( xml, "^'([^<']+)'", pos2 ) -- FIXME: disallow non-entity ampersands
 				if first then
-					-- TODO: unescape entities in match2
-					if self._call.attribute then self._call.attribute(match1,unescape(match2)) end
 					pos = last+1
-					return true
+					match2 = unescape(match2)
 				end
 			end
+		end
+		if match1 and match2 then
+			nsURI = nil
+			local prefix,name = string.match(match1,'^([^:]+):([^:]+)$')
+			if prefix then
+				if prefix=='xmlns' then
+					nsStack[#nsStack][name] = match2
+				else
+					nsURI = nsForPrefix(prefix)
+					match1 = name
+				end
+			else
+				if match1=='xmlns' then
+					nsStack[#nsStack]['!'] = match2
+					if self._call.namespace then self._call.namespace(match2) end
+				end
+			end
+			if self._call.attribute then self._call.attribute(match1,match2,nsURI) end
+			return true
 		end
 	end
 
@@ -128,7 +164,10 @@ function SLAXML:parse(xml)
 			state = "text"
 			pos = last+1
 			textStart = pos
-			if match1=="/" and self._call.closeElement then self._call.closeElement(currentElement) end
+			if match1=="/" then
+				pop(nsStack)
+				if self._call.closeElement then self._call.closeElement(currentElement) end
+			end
 			return true
 		end
 	end
@@ -140,6 +179,7 @@ function SLAXML:parse(xml)
 			if self._call.closeElement then self._call.closeElement(match1) end
 			pos = last+1
 			textStart = pos
+			pop(nsStack)
 			return true
 		end
 	end
@@ -162,64 +202,4 @@ function SLAXML:parse(xml)
 			end
 		end
 	end
-end
-
-function SLAXML:dom(xml,ignoreWhitespace,slim)
-	SLAXML.ignoreWhitespace = ignoreWhitespace
-	local push, pop = table.insert, table.remove
-	local stack = {}
-	local doc = { type="document", name="#doc", kids={} }
-	local current = doc
-	local builder = SLAXML:parser{
-		startElement = function(name)
-			local el = { type="element", name=name, kids={}, el={}, attr={} }
-			if current==doc then
-				if doc.root then
-					error(("Encountered element '%s' when the document already has a root '%s' element"):format(name,doc.root.name))
-				else
-					doc.root = el
-				end
-			end
-			if current.type~="element" and current.type~="document" then
-				error(("Encountered an element inside of a %s"):format(current.type))
-			else
-				push(current.kids,el)
-				if current.el then push(current.el,el) end
-			end
-			current = el
-			push(stack,el)
-		end,
-		attribute = function(name,value)
-			if not current or current.type~="element" then
-				error(("Encountered an attribute %s=%s but I wasn't inside an element"):format(name,value))
-			else
-				current.attr[name] = value
-			end
-		end,
-		closeElement = function(name)
-			if current.name~=name or current.type~="element" then
-				error(("Received a close element notification for '%s' but was inside a '%s' %s"):format(name,current.name,current.type))
-			end
-			pop(stack)
-			current = stack[#stack]
-		end,
-		text = function(value)
-			if current.type~='document' then
-				if current.type~="element" then
-					error(("Received a text notification '%s' but was inside a %s"):format(value,current.type))
-				else
-					push(current.kids,{type='text',name='#text',value=value,text=value})
-					if current.text then current.text = current.text..value else current.text=value end
-				end
-			end
-		end,
-		comment = function(value)
-			push(current.kids,{type='comment',name='#comment',value=value,text=value})
-		end,
-		pi = function(name,value)
-			push(current.kids,{type='pi',name=name,value=value})
-		end
-	}
-	builder:parse(xml)
-	return doc
 end
