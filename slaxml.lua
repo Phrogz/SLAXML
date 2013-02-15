@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.1.1 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.2 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
-	VERSION = "0.1.1",
+	VERSION = "0.2",
 	ignoreWhitespace = true,
 	_call = {
 		pi = function(target,content)
@@ -33,23 +33,19 @@ end
 
 function SLAXML:parse(xml)
 	-- Cache references for maximum speed
-	local find, sub, gsub = string.find, string.sub, string.gsub
+	local find, sub, gsub, char = string.find, string.sub, string.gsub, string.char
 	-- local sub, gsub, find, push, pop, unescape = string.sub, string.gsub, string.find, table.insert, table.remove, unescape
-	local first, last, match1, match2, match3, match4, pos2
+	local first, last, match1, match2, pos2
 	local pos = 1
 	local state = "text"
 	local textStart = 1
 	local currentElement
 
-	function unescape(str)
-		str  = gsub( str, '&lt;', '<' )
-		str  = gsub( str, '&gt;', '>' )
-		str  = gsub( str, '&quot;', '"' )
-		str  = gsub( str, '&apos;', "'" )
-		return gsub( str, '&amp;', '&' )
-	end
+	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
+	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char(s) or orig end
+	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
 
-	function finishText()
+	local function finishText()
 		if first>textStart and self._call.text then
 			local text = sub(xml,textStart,first-1)
 			if SLAXML.ignoreWhitespace then
@@ -61,7 +57,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function findPI()
+	local function findPI()
 		first, last, match1, match2 = find( xml, '^<%?([:%a_][:%w_.-]*) ?(.-)%?>', pos )
 		if first then
 			finishText()
@@ -72,7 +68,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function findComment()
+	local function findComment()
 		first, last, match1 = find( xml, '^<!%-%-(.-)%-%->', pos )
 		if first then
 			finishText()
@@ -83,7 +79,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function startElement()
+	local function startElement()
 		first, last, match1 = find( xml, '^<([:%a_][:%w_.-]*)', pos )
 		if first then
 			finishText()
@@ -94,7 +90,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function findAttribute()
+	local function findAttribute()
 		first, last, match1 = find( xml, '^%s+([:%a_][:%w_.-]*)%s*=%s*', pos )
 		if first then
 			pos2 = last+1
@@ -115,7 +111,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function findCDATA()
+	local function findCDATA()
 		first, last, match1 = find( xml, '^<!%[CDATA%[(.-)%]%]>', pos )
 		if first then
 			finishText()
@@ -126,7 +122,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function closeElement()
+	local function closeElement()
 		first, last, match1 = find( xml, '^%s*(/?)>', pos )
 		if first then
 			state = "text"
@@ -137,7 +133,7 @@ function SLAXML:parse(xml)
 		end
 	end
 
-	function findElementClose()
+	local function findElementClose()
 		first, last, match1 = find( xml, '^</([:%a_][:%w_.-]*)%s*>', pos )
 		if first then
 			finishText()

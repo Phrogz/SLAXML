@@ -1,9 +1,9 @@
 # SLAXML
 SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust than 
-many (simpler) pattern-based parsers that exist ([such as mine][1]), propertly supporting code like `<expr test="5 > 7" />`, CDATA nodes, comments, and processing instructions.
+many (simpler) pattern-based parsers that exist ([such as mine][1]), properly supporting code like `<expr test="5 > 7" />`, CDATA nodes, comments, and processing instructions.
 
 It is currently not a truly valid XML parser, however, as it allows completely invalid XML such
-as `<foo></bar>` to be parsed and reported as such. It is also not namespace-aware. See the "Limitations / TODO" section below for more details.
+as `<foo></bar>` to be parsed (and reported) as such. It is also not namespace-aware. See the "Limitations / TODO" section below for more details.
 
 [1]: http://phrogz.net/lua/AKLOMParser.lua
 
@@ -33,6 +33,11 @@ If you just want to see if it parses your document correctly, you can also use j
 …which will cause SLAXML to use its built-in callbacks that print the results as seen.
 
 # History
+
+## v0.2 2013-Feb-15
+### Features
++ Supports expanding numeric entities e.g. `&#34;` -> `"`
++ Utility functions are local to parsing (not spamming the global namespace)
 
 ## v0.1 2013-Feb-7
 ### Features
