@@ -12,8 +12,8 @@ See the "Limitations / TODO" section below for more details.
 
 # Usage
     require 'slaxml'
-    -- Skip whitespace-only text nodes and strip leading/trailing whitespace from text nodes
-    SLAXML.ignoreWhitespace = true 
+
+    local myxml = io.open('my.xml'):read()
 
     -- Specify as many/few of these as you like
     parser = SLAXML:parser{
@@ -26,10 +26,10 @@ See the "Limitations / TODO" section below for more details.
       namespace    = function(nsURI)            end, -- when xmlns="..." is seen (after startElement)
     }
 
-    myxml = io.open('my.xml'):read()
-    parser:parse(myxml)
+    -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text and CDATA
+    parser:parse(myxml,{stripWhitespace=true})
 
-If you just want to see if it parses your document correctly, you can also use just:
+If you just want to see if it will parses your document correctly, you can simply do:
 
     require 'slaxml'
     SLAXML:parse(myxml)
@@ -38,7 +38,7 @@ If you just want to see if it parses your document correctly, you can also use j
 
 # DOM Builder
 
-If you want to build simple tables from your XML then you can alternatively:
+If you simply want to build tables from your XML, you can alternatively:
 
     require 'slaxdom'
     local doc = SLAXML:dom(myxml)
@@ -107,6 +107,14 @@ The following function can be used to calculate the "inner text" for an element:
     local para = SLAXML:dom(xml).root
     print(elementText(para)) --> "Hello you crazy World!""
 
+## A Simpler DOM
+
+If you want the DOM tables to be simpler-to-serialize you can supply the `simple` option via:
+
+    local dom = SLAXML:dom(myXML,{ simple=true })
+
+In this case no element will have a `parent` attribute, elements will not have a `el` collection, and the `attr` collection will be a simple array (without values accessible directly via attribute name). In short, the output will be a strict hierarchy with no internal references to other tables.
+
 ----
 
 # Known Limitations / TODO
@@ -124,6 +132,7 @@ The following function can be used to calculate the "inner text" for an element:
 
 ## v0.4 2013-Feb-16
 + DOM adds `.parent` references
++ `SLAXML.ignoreWhitespace` is now `:parse(xml,{stripWhitespace=true})`
 + "simple" mode for DOM parsing
 
 ## v0.3 2013-Feb-15

@@ -51,17 +51,51 @@ function test_dom()
 	end
 end
 
+function test_slim_and_trim_dom()
+	local function checkParentage(el)
+		for _,child in ipairs(el.kids) do
+			assertNil(child.parent,'"slim" dom children should not have a parent')
+			if child.kids then checkParentage(child) end
+		end
+	end
+
+	local doc = SLAXML:dom(XML['entities_and_namespaces'],{simple=true,stripWhitespace=true})
+	assertEqual(doc.type,'document')
+	assertEqual(doc.kids[1].type,'pi')
+	assertEqual(#doc.kids,2)
+	assertEqual(doc.kids[2],doc.root)
+	assertEqual(#doc.root.kids,3)
+	assertNil(doc.root.el)
+	assertNil(doc.root.attr.version)
+	assertNil(doc.root.attr.xmlns)
+	assertNil(doc.root.attr['xmlns:p'])
+	assertEqual(#doc.root.attr,3)
+
+	checkParentage(doc)
+
+	local s = doc.root.kids[1]
+	assertEqual(s.name,'script')
+	assertEqual(s.type,'element')
+	assertEqual(#s.kids,2)
+	assertEqual(s.kids[1].type,'text')
+	assertEqual(s.kids[2].type,'text')
+
+	local t = doc.root.kids[2].kids[1]
+	assertEqual(t.name,'transition')
+	assertEqual(#t.kids,5)
+	assertEqual(t.kids[3].type,'comment')
+end
+
 function test_dom_entities()
 	local doc = SLAXML:dom(XML['entities_and_namespaces'])
 	local s = doc.root.el[1]
-	assertEqual(s.kids[1].text,' ampersand = "&"; ')
-	assertEqual(s.kids[2].text,"quote = '\"'; apos  = \"'\"")
+	assertEqual(s.kids[1].value,' ampersand = "&"; ')
+	assertEqual(s.kids[2].value,"quote = '\"'; apos  = \"'\"")
 
 	local t = doc.root.el[2].el[1]
 	assertEqual(t.attr.cond,[[ampersand=='&' and quote=='"' and apos=="'"]])
 
 	assertEqual(t.kids[6].value,' your code &gt; all ')
-	assertEqual(t.kids[6].text,t.kids[6].value)
 end
 
 function test_dom_namespaces()

@@ -4,7 +4,6 @@ See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
 	VERSION = "0.4",
-	ignoreWhitespace = true,
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -34,10 +33,11 @@ function SLAXML:parser(callbacks)
 	return { _call=callbacks or self._call, parse=SLAXML.parse }
 end
 
-function SLAXML:parse(xml)
+function SLAXML:parse(xml,options)
+	if not options then options = { stripWhitespace=false } end
+
 	-- Cache references for maximum speed
 	local find, sub, gsub, char, push, pop = string.find, string.sub, string.gsub, string.char, table.insert, table.remove
-	-- local sub, gsub, find, push, pop, unescape = string.sub, string.gsub, string.find, table.insert, table.remove, unescape
 	local first, last, match1, match2, match3, pos2, nsURI
 	local pos = 1
 	local state = "text"
@@ -52,7 +52,7 @@ function SLAXML:parse(xml)
 	local function finishText()
 		if first>textStart and self._call.text then
 			local text = sub(xml,textStart,first-1)
-			if SLAXML.ignoreWhitespace then
+			if options.stripWhitespace then
 				text = gsub(text,'^%s+','')
 				text = gsub(text,'%s+$','')
 				if #text==0 then text=nil end
