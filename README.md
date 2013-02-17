@@ -4,11 +4,24 @@ many (simpler) pattern-based parsers that exist ([such as mine][1]), properly
 supporting code like `<expr test="5 > 7" />`, CDATA nodes, comments, namespaces,
 and processing instructions.
 
-It is currently not a truly valid XML parser, however, as it allows some invalid
-XML such as `<foo></bar>` to be parsed (and reported) as such.
-See the "Limitations / TODO" section below for more details.
+It is currently not a truly valid XML parser, however, as it allows certain XML that
+is syntactically-invalid (not well-formed) to be parsed without reporting an error.
 
 [1]: http://phrogz.net/lua/AKLOMParser.lua
+
+## Features
+
+* Pure Lua in a single file (two files if you use the DOM parser).
+* Streaming parser does a single pass through the input and reports what it sees along the way.
+* Supports processing instructions (`<?foo bar?>`).
+* Supports comments (`<!-- hello world -->`).
+* Supports CDATA sections (`<![CDATA[ whoa <xml> & other content as text ]]>`).
+* Supports namespaces, resolving prefixes to the proper namespace URI (`<foo xmlns="bar">` and `<wrap xmlns:bar="bar"><bar:kittens/></wrap>`).
+* Supports unescaped greater-than symbols in attribute content (a common failing for simpler pattern-based parsers).
+* Unescapes named XML entities (`&lt; &gt; &amp; &quot; &apos;`) and numeric entities (e.g. `&#10;`) in attributes and text nodes (but—properly—not in comments or CDATA). Properly handles edge cases like `&#38;amp;`.
+* Optionally ignore whitespace-only text nodes (as appear when indenting XML markup).
+* Includes a DOM parser that is a both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
+* Adds only a single `SLAXML` key to the environment; there is no spam of utility functions polluting the global namespace.
 
 ## Usage
     require 'slaxml'
