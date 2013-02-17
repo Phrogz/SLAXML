@@ -48,13 +48,13 @@ The returned table is a 'document' comprised of tables for elements, attributes,
 ### DOM Table Features
 
 * **Document** - the root table returned from the `SLAXML:dom()` method.
-  * **`doc.type`** : the string `"document"`
-  * **`doc.name`** : the string `"#doc"`
+  * **`doc.type`** : the string `"document"` 
+  * **`doc.name`** : the string `"#doc"` 
   * **`doc.kids`** : an array table of child processing instructions, the root element, and comment nodes.
   * **`doc.root`** : the root element for the document
 
 * **Element**
-  * **`someEl.type`** : the string `"element"`
+  * **`someEl.type`** : the string `"element"` 
   * **`someEl.name`** : the string name of the element (without any namespace prefix)
   * **`someEl.nsURI`** : the namespace URI for this element; `nil` if no namespace is applied
   * **`someEl.attr`** : a table of attributes, indexed by name and index
@@ -65,26 +65,26 @@ The returned table is a 'document' comprised of tables for elements, attributes,
   * **`someEl.parent`** : reference to the the parent element or document table
 
 * **`Attribute`**
-  * **`someAttr.type`** : the string `"attribute"`
+  * **`someAttr.type`** : the string `"attribute"` 
   * **`someAttr.name`** : the name of the attribute (without any namespace prefix)
   * **`someAttr.value`** : the string value of the attribute (with XML and numeric entities unescaped)
   * **`someEl.nsURI`** : the namespace URI for the attribute; `nil` if no namespace is applied
   * **`someEl.parent`** : reference to the the parent element table
 
 * **`Text`** - for both CDATA and normal text nodes
-  * **`someText.type`** : the string `"text"`
-  * **`someText.name`** : the string `"#text"`
+  * **`someText.type`** : the string `"text"` 
+  * **`someText.name`** : the string `"#text"` 
   * **`someText.value`** : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
   * **`someText.parent`** : reference to the the parent element table
 
 * **`Comment`**
-  * **`someComment.type`** : the string `"comment"`
-  * **`someComment.name`** : the string `"#comment"`
+  * **`someComment.type`** : the string `"comment"` 
+  * **`someComment.name`** : the string `"#comment"` 
   * **`someComment.value`** : the string content of the attribute
   * **`someComment.parent`** : reference to the the parent element or document table
 
 * **`Processing Instruction`**
-  * **`someComment.type`** : the string `"pi"`
+  * **`someComment.type`** : the string `"pi"` 
   * **`someComment.name`** : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
   * **`someComment.value`** : the string content of the PI, i.e. everything but the name
   * **`someComment.parent`** : reference to the the parent element or document table
