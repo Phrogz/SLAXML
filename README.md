@@ -125,7 +125,7 @@ In this case no table will have a `parent` attribute, elements will not have the
 ## History
 
 ### v0.4.3 2013-Feb-17
-+ Bugfix to allow empty attributes (`foo=""`)
++ Bugfix to allow empty attributes, i.e. `foo=""`
 + `closeElement` no longer includes namespace prefix in the name, includes the nsURI
 
 ### v0.4 2013-Feb-16
