@@ -12,10 +12,10 @@ SLAXML = {
 			print(string.format("<!-- %s -->",content))
 		end,
 		startElement = function(name,nsURI)
-			print(string.format("<%s %s>",name,nsURI or "-"))
+			print(string.format("<%s%s>",name,nsURI and (" ("..nsURI..")") or ""))
 		end,
 		attribute = function(name,value,nsURI)
-			print(string.format("  %s=%q (%s)",name,value,nsURI or "-"))
+			print(string.format("  %s=%q%s",name,value,nsURI and (" ("..nsURI..")") or ""))
 		end,
 		text = function(text)
 			print(string.format("  text: %q",text))
