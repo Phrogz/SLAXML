@@ -11,6 +11,19 @@ for filename in io.popen('ls files'):lines() do
 	XML[filename:match('^(.-)%.[^.]+$')] = io.open("files/"..filename):read('*all')
 end
 
+local function countParsings(xmlName,options,expected)
+	local counts,counters = {},{}
+	expected.closeElement = expected.startElement
+	for name,_ in pairs(expected) do
+		counts[name]   = 0
+		counters[name] = function() counts[name]=counts[name]+1 end
+	end
+	SLAXML:parser(counters):parse(XML[xmlName],options)
+	for name,ct in pairs(expected) do
+		assertEqual(counts[name],ct,"There should have been be exactly "..ct.." "..name.."() callback(s) in "..xmlName..", not "..counts[name])
+	end
+end
+
 function test_dom()
 	local function checkParentage(el)
 		for _,child in ipairs(el.kids) do
@@ -143,33 +156,48 @@ function test_dom_namespaces()
 	assertEqual(nsByValue['a3-y'],yNS)
 end
 
-function test_invalid_documents()
+function testz_invalid_documents()
 	local silentParser = SLAXML:parser{}
+	assertErrors(silentParser.parse, silentParser, XML['invalid_unquoted']        )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_pi_only']         )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_unclosed_tags']   )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_literal_gtamplt'] )
 end
 
 function test_simplest()
-	local expected = {
+	countParsings('root_only',{},{
 		pi           = 0,
 		comment      = 0,
 		startElement = 1,
 		attribute    = 0,
 		text         = 0,
-		closeElement = 1,
 		namespace    = 0,
-	}
-	local counts,counters = {},{}
-	for name,_ in pairs(expected) do
-		counts[name]   = 0
-		counters[name] = function() counts[name]=counts[name]+1 end
-	end
-	local countParser = SLAXML:parser(counters)
-	countParser:parse(XML['root_only'])
-	for name,ct in pairs(expected) do
-		assertEqual(counts[name],ct,"There should have been be exactly "..ct.." "..name.."() callback(s)")
-	end
+	})
+end
+
+function test_whitespace()
+	countParsings('lotsaspace',{},{
+		pi           = 0,
+		comment      = 0,
+		startElement = 3,
+		attribute    = 2,
+		text         = 5,
+		namespace    = 0,
+	})
+
+	countParsings('lotsaspace',{stripWhitespace=true},{
+		pi           = 0,
+		comment      = 0,
+		startElement = 3,
+		attribute    = 2,
+		text         = 2,
+		namespace    = 0,
+	})
+
+	local simple = SLAXML:dom(XML['lotsaspace'],{stripWhitespace=true}).root
+	local a = simple.el[1]
+	assertEqual(a.kids[1].value,"It's the end of the world\n  as we know it, and I feel\n	fine.")
+	assertEqual(a.kids[2].value,"\nIt's a [raw][[raw]] >\nstring that <do/> not care\n	about honey badgers.\n\n  ")
 end
 
 runTests{ useANSI=false }

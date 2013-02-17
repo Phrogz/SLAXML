@@ -26,7 +26,8 @@ See the "Limitations / TODO" section below for more details.
       namespace    = function(nsURI)            end, -- when xmlns="..." is seen (after startElement)
     }
 
-    -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text and CDATA
+    -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text
+    -- (does not strip leading/trailing whitespace from CDATA)
     parser:parse(myxml,{stripWhitespace=true})
 
 If you just want to see if it will parses your document correctly, you can simply do:

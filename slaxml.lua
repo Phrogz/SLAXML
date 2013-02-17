@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.4 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.4.1 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
-	VERSION = "0.4",
+	VERSION = "0.4.1",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -114,12 +114,12 @@ function SLAXML:parse(xml,options)
 		first, last, match1 = find( xml, '^%s+([:%a_][:%w_.-]*)%s*=%s*', pos )
 		if first then
 			pos2 = last+1
-			first, last, match2 = find( xml, '^"([^<"]+)"', pos2 ) -- FIXME: disallow non-entity ampersands
+			first, last, match2 = find( xml, '^"([^<"]*)"', pos2 ) -- FIXME: disallow non-entity ampersands
 			if first then
 				pos = last+1
 				match2 = unescape(match2)
 			else
-				first, last, match2 = find( xml, "^'([^<']+)'", pos2 ) -- FIXME: disallow non-entity ampersands
+				first, last, match2 = find( xml, "^'([^<']*)'", pos2 ) -- FIXME: disallow non-entity ampersands
 				if first then
 					pos = last+1
 					match2 = unescape(match2)
