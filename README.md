@@ -113,9 +113,8 @@ If you want the DOM tables to be simpler-to-serialize you can supply the `simple
 
     local dom = SLAXML:dom(myXML,{ simple=true })
 
-In this case no element will have a `parent` attribute, elements will not have a `el` collection, and the `attr` collection will be a simple array (without values accessible directly via attribute name). In short, the output will be a strict hierarchy with no internal references to other tables.
+In this case no table will have a `parent` attribute, elements will not have the `el` collection, and the `attr` collection will be a simple array (without values accessible directly via attribute name). In short, the output will be a strict hierarchy with no internal references to other tables, and all data represented in exactly one spot.
 
-----
 
 ## Known Limitations / TODO
 - Does not require or enforce well-formed XML (or report/fail on invalid)
@@ -126,7 +125,6 @@ In this case no element will have a `parent` attribute, elements will not have a
 - No support for DTDs
 - No support for extended characters in element/attribute names
 
-----
 
 ## History
 
@@ -158,7 +156,6 @@ In this case no element will have a `parent` attribute, elements will not have a
 + Supports Comments
 + Supports Processing Instructions
 
-----
 
 ## License
 Copyright © 2013 [Gavin Kistner](mailto:!@phrogz.net)
