@@ -52,7 +52,6 @@ The returned table is a 'document' comprised of tables for elements, attributes,
   * <strong>`doc.name`</strong> : the string `"#doc"`
   * <strong>`doc.kids`</strong> : an array table of child processing instructions, the root element, and comment nodes.
   * <strong>`doc.root`</strong> : the root element for the document
-
 * **Element**
   * <strong>`someEl.type`</strong> : the string `"element"`
   * <strong>`someEl.name`</strong> : the string name of the element (without any namespace prefix)
@@ -63,27 +62,23 @@ The returned table is a 'document' comprised of tables for elements, attributes,
   * <strong>`someEl.kids`</strong> : an array table of child elements, text nodes, comment nodes, and processing instructions
   * <strong>`someEl.el`</strong> : an array table of child elements only
   * <strong>`someEl.parent`</strong> : reference to the the parent element or document table
-
-* <strong>`Attribute`</strong>
+* **Attribute**
   * <strong>`someAttr.type`</strong> : the string `"attribute"`
   * <strong>`someAttr.name`</strong> : the name of the attribute (without any namespace prefix)
   * <strong>`someAttr.value`</strong> : the string value of the attribute (with XML and numeric entities unescaped)
   * <strong>`someEl.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
   * <strong>`someEl.parent`</strong> : reference to the the parent element table
-
-* <strong>`Text`</strong> - for both CDATA and normal text nodes
+* **Text** - for both CDATA and normal text nodes
   * <strong>`someText.type`</strong> : the string `"text"`
   * <strong>`someText.name`</strong> : the string `"#text"`
   * <strong>`someText.value`</strong> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
   * <strong>`someText.parent`</strong> : reference to the the parent element table
-
-* <strong>`Comment`</strong>
+* **Comment**
   * <strong>`someComment.type`</strong> : the string `"comment"`
   * <strong>`someComment.name`</strong> : the string `"#comment"`
   * <strong>`someComment.value`</strong> : the string content of the attribute
   * <strong>`someComment.parent`</strong> : reference to the the parent element or document table
-
-* <strong>`Processing Instruction`</strong>
+* **Processing Instruction**
   * <strong>`someComment.type`</strong> : the string `"pi"`
   * <strong>`someComment.name`</strong> : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
   * <strong>`someComment.value`</strong> : the string content of the PI, i.e. everything but the name
