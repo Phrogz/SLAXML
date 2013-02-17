@@ -253,7 +253,7 @@ function assertInvokable( value, msg )
 	return __assertionSucceeded()
 end
 
-function assertErrors( msg, invokable, ... )
+function assertErrors( invokable, ... )
 	assertInvokable( invokable )
 	if pcall(invokable,...) then
 		local msg = string.format( "assertErrors() failed: %s did not raise an error",
