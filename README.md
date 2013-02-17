@@ -43,7 +43,7 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
     -- (does not strip leading/trailing whitespace from CDATA)
     parser:parse(myxml,{stripWhitespace=true})
 
-If you just want to see if it will parses your document correctly, you can simply do:
+If you just want to see if it will parse your document correctly, you can simply do:
 
     require 'slaxml'
     SLAXML:parse(myxml)
@@ -54,7 +54,7 @@ If you just want to see if it will parses your document correctly, you can simpl
 
 If you simply want to build tables from your XML, you can alternatively:
 
-    require 'slaxdom'
+    require 'slaxdom' -- requires the slaxml.lua file; make sure you copy it also
     local doc = SLAXML:dom(myxml)
 
 The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
@@ -126,13 +126,14 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## Known Limitations / TODO
-- Does not require or enforce well-formed XML (or report/fail on invalid)
+- Does not require or enforce well-formed XML (silently ignores and consumes certain syntax errors)
 - No support for entity expansion other than
   `&lt; &gt; &quot; &apos; &amp;` and numeric ASCII entities like `&#10;`
 - XML Declarations (`<?xml version="1.x"?>`) are incorrectly reported
   as Processing Instructions
 - No support for DTDs
 - No support for extended characters in element/attribute names
+- No support for [XInclude](http://www.w3.org/TR/xinclude/)
 
 
 ## History
