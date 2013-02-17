@@ -1,53 +1,15 @@
 --[=========================================================================[
-   Lunity v0.10 by Gavin Kistner
-
-   This work is licensed under the Creative Commons Attribution 3.0
-   United States License. To view a copy of this license, visit
-   http://creativecommons.org/licenses/by/3.0/us/ or send a letter to
-     Creative Commons
-     171 Second Street, Suite 300
-     San Francisco, California, 94105, USA
-
-   Usage:
-   require 'test/lunity'
-   module( 'TEST_RUNTIME', lunity )
-   
-   function setup()
-     -- code here will be run before each test
-   end
-   
-   function teardown()
-     -- code here will be run after each test
-   end
-   
-   function test1_foo()
-     -- Tests to run must either start with or end with 'test'
-     assertTrue( 42 == 40 + 2 )
-     assertFalse( 42 == 40 )
-     assertEqual( 42, 40 + 2 )
-     assertNotEqual( 42, 40, "These better not be the same!" )
-     assertTableEquals( { a=42 }, { ["a"]=6*7 } )
-     -- See library for more assertions available
-   end
-   
-   function test2_bar()
-     -- Tests will be run in alphabetical order of the entire function name
-   end
-   
-   function utility()
-     -- You can define functions for your tests to call with impunity
-   end
-   
-   runTests(  )
-   -- or runTests{ useANSI = false }
-   -- or runTests{ useHTML = true  }
+   Lunity v0.10.1 by Gavin Kistner
+   See http://github.com/Phrogz/Lunity for usage documentation.
+   Licensed under Creative Commons Attribution 3.0 United States License.
+   See http://creativecommons.org/licenses/by/3.0/us/ for details.
 --]=========================================================================]
 
 local setmetatable=setmetatable
 local _G=_G
 module( 'lunity' )
 
-VERSION = "0.10"
+VERSION = "0.10.1"
 
 local lunity = _M
 setmetatable( lunity, {
@@ -291,7 +253,7 @@ function assertInvokable( value, msg )
 	return __assertionSucceeded()
 end
 
-function assertErrors( invokable, ... )
+function assertErrors( msg, invokable, ... )
 	assertInvokable( invokable )
 	if pcall(invokable,...) then
 		local msg = string.format( "assertErrors() failed: %s did not raise an error",
