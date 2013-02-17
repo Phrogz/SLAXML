@@ -124,6 +124,10 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 ## History
 
+### v0.4.3 2013-Feb-17
++ Bugfix to allow empty attributes (`foo=""`)
++ `closeElement` no longer includes namespace prefix in the name, includes the nsURI
+
 ### v0.4 2013-Feb-16
 + DOM adds `.parent` references
 + `SLAXML.ignoreWhitespace` is now `:parse(xml,{stripWhitespace=true})`
