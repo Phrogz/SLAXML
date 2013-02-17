@@ -1,10 +1,7 @@
 <?xml version="1.0"?>
 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0"
  xmlns:p="http://phrogz.net/">
-	<script><![CDATA[ ampersand = "&"; ]]>
-		quote = '&quot;'
-		apos  = "&#039;"
-	</script>
+	<script><![CDATA[ ampersand = "&"; ]]>quote = '&quot;'; apos  = "&#039;"</script>
 	<state id="s1">
 		<transition cond="ampersand=='&amp;' and quote=='&#34;' and apos==&quot;&apos;&quot;" target="pass">
 			<log label="Yay" p:level="i">Some Text</log>
@@ -14,4 +11,7 @@
 			<bar />
 		</transition>
 	</state>
+	<wrap xmlns:x="xNS" xmlns:y="yNS">
+		<e a1="a1" a2="a2" x:a2="a2-x" a3="a3" x:a3="a3-x" y:a3="a3-y" />
+	</wrap>
 </scxml>

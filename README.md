@@ -19,7 +19,7 @@ See the "Limitations / TODO" section below for more details.
     parser = SLAXML:parser{
       startElement = function(name,nsURI)       end, -- When "<foo" or <x:foo is seen
       attribute    = function(name,value,nsURI) end, -- attribute found on current element
-      closeElement = function(name)             end, -- When "</foo" or "/>" is seen
+      closeElement = function(name)             end, -- When "</foo>" or "/>" is seen
       text         = function(text)             end, -- text and CDATA nodes
       comment      = function(content)          end, -- comments
       pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
@@ -36,53 +36,80 @@ If you just want to see if it parses your document correctly, you can also use j
 
 …which will cause SLAXML to use its built-in callbacks that print the results as seen.
 
-If you want to build a table object model from your XML (with simple collections like
-`.kids` and `.attr` for navigating the hierarchy) then you can alternatively:
+# DOM Builder
+
+If you want to build simple tables from your XML then you can alternatively:
 
     require 'slaxdom'
     local doc = SLAXML:dom(myxml)
-    print( doc.root.name  )
-    print( doc.root.nsURI )
-    print( doc.root.attr['version'] )
-    for i,node in ipairs(doc.root.kids) do
-      -- includes elements, comments, textnodes and PIs
-      print("Child #",i,"is",node.type,node.name)
-    end
-    for i,el in ipairs(doc.root.el) do
-      -- includes only elements
-      print("Element #",i,"is",node.name)
-      for name,value in pairs(node.attr) do
-        print("",name,"=",value)
+
+The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
+
+## DOM Table Features
+
+* **Document** - the root table returned from the `SLAXML:dom()` method.
+  * **`doc.type`** : the string `"document"`
+  * **`doc.name`** : the string `"#doc"`
+  * **`doc.kids`** : an array table of child processing instructions, the root element, and comment nodes.
+  * **`doc.root`** : the root element for the document
+
+* **Element**
+  * **`someEl.type`** : the string `"element"`
+  * **`someEl.name`** : the string name of the element (without any namespace prefix)
+  * **`someEl.nsURI`** : the namespace URI for this element; `nil` if no namespace is applied
+  * **`someEl.attr`** : a table of attributes, indexed by name and index
+    * `local value = someEl.attr['attribute-name']` : any namespace prefix of the attribute is not part of the name
+    * `local someAttr = someEl.attr[1]` : an single attribute table (see below); useful for iterating all attributes of an element, or for disambiguating attributes with the same name in different namespaces
+  * **`someEl.kids`** : an array table of child elements, text nodes, comment nodes, and processing instructions
+  * **`someEl.el`** : an array table of child elements only
+  * **`someEl.parent`** : reference to the the parent element or document table
+
+* **`Attribute`**
+  * **`someAttr.type`** : the string `"attribute"`
+  * **`someAttr.name`** : the name of the attribute (without any namespace prefix)
+  * **`someAttr.value`** : the string value of the attribute (with XML and numeric entities unescaped)
+  * **`someEl.nsURI`** : the namespace URI for the attribute; `nil` if no namespace is applied
+  * **`someEl.parent`** : reference to the the parent element table
+
+* **`Text`** - for both CDATA and normal text nodes
+  * **`someText.type`** : the string `"text"`
+  * **`someText.name`** : the string `"#text"`
+  * **`someText.value`** : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
+  * **`someText.parent`** : reference to the the parent element table
+
+* **`Comment`**
+  * **`someComment.type`** : the string `"comment"`
+  * **`someComment.name`** : the string `"#comment"`
+  * **`someComment.value`** : the string content of the attribute
+  * **`someComment.parent`** : reference to the the parent element or document table
+
+* **`Processing Instruction`**
+  * **`someComment.type`** : the string `"pi"`
+  * **`someComment.name`** : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
+  * **`someComment.value`** : the string content of the PI, i.e. everything but the name
+  * **`someComment.parent`** : reference to the the parent element or document table
+
+## Finding Text for a DOM Element
+
+The following function can be used to calculate the "inner text" for an element:
+
+    function elementText(el)
+      local pieces = {}
+      for _,n in ipairs(el.kids) do
+        if n.type=='element' then pieces[#pieces+1] = elementText(n)
+        elseif n.type=='text' then pieces[#pieces+1] = n.value
+        end
       end
+      return table.concat(pieces)
     end
+    
+    local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>>]]
+    local para = SLAXML:dom(xml).root
+    print(elementText(para)) --> "Hello you crazy World!""
 
+----
 
-# History
-
-## v0.3 2013-Feb-15
-### Features
-+ Support namespaces for elements and attributes
-  + `<foo xmlns="bar">` will call `startElement("foo",nil)` followed by `namespace("bar")`
-    + Child elements inheriting the default namespace will call `startElement("child","bar")`
-  + `<xy:foo>` will call `startElement("foo","uri-for-xy-namespace")` or error if not found
-  + `<foo xy:bar="yay">` will call `attribute("bar","yay","uri-for-xy-namespace")` or error if not found
-+ Add (optional) DOM parser that validates hierarchy and supports namespaces
-  - Except that namespaced attributes with the same name will collide
-
-## v0.2 2013-Feb-15
-### Features
-+ Supports expanding numeric entities e.g. `&#34;` -> `"`
-+ Utility functions are local to parsing (not spamming the global namespace)
-
-## v0.1 2013-Feb-7
-### Features
-+ Option to ignore whitespace-only text nodes
-+ Supports unescaped > in attributes
-+ Supports CDATA
-+ Supports Comments
-+ Supports Processing Instructions
-
-### Limitations / TODO
+# Known Limitations / TODO
 - Does not require or enforce well-formed XML (or report/fail on invalid)
 - No support for entity expansion other than
   `&lt; &gt; &quot; &apos; &amp;` and numeric ASCII entities like `&#10;`
@@ -90,6 +117,39 @@ If you want to build a table object model from your XML (with simple collections
   as Processing Instructions
 - No support for DTDs
 - No support for extended characters in element/attribute names
+
+----
+
+# History
+
+## v0.4 2013-Feb-16
++ DOM adds `.parent` references
++ "simple" mode for DOM parsing
+
+## v0.3 2013-Feb-15
++ Support namespaces for elements and attributes
+  + `<foo xmlns="barURI">` will call `startElement("foo",nil)` followed by
+    `namespace("barURI")` (and then `attribute("xmlns","barURI",nil)`);
+    you must apply the namespace to your element after creation.
+  + Child elements without a namespace prefix that inherit a namespace will
+    receive `startElement("child","barURI")`
+  + `<xy:foo>` will call `startElement("foo","uri-for-xy")`
+  + `<foo xy:bar="yay">` will call `attribute("bar","yay","uri-for-xy")`
+  + Runtime errors are generated for any namespace prefix that cannot be resolved
++ Add (optional) DOM parser that validates hierarchy and supports namespaces
+
+## v0.2 2013-Feb-15
++ Supports expanding numeric entities e.g. `&#34;` -> `"`
++ Utility functions are local to parsing (not spamming the global namespace)
+
+## v0.1 2013-Feb-7
++ Option to ignore whitespace-only text nodes
++ Supports unescaped > in attributes
++ Supports CDATA
++ Supports Comments
++ Supports Processing Instructions
+
+----
 
 # License
 Copyright © 2013 [Gavin Kistner](mailto:!@phrogz.net)

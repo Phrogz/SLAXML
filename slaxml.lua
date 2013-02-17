@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.4 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
-	VERSION = "0.3",
+	VERSION = "0.4",
 	ignoreWhitespace = true,
 	_call = {
 		pi = function(target,content)
