@@ -1,5 +1,5 @@
 # SLAXML
-SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust than 
+SLAXML is a pure-Lua SAX-like streaming XML parser. It is more robust than
 many (simpler) pattern-based parsers that exist ([such as mine][1]), properly
 supporting code like `<expr test="5 > 7" />`, CDATA nodes, comments, namespaces,
 and processing instructions.
@@ -48,46 +48,46 @@ The returned table is a 'document' comprised of tables for elements, attributes,
 ### DOM Table Features
 
 * **Document** - the root table returned from the `SLAXML:dom()` method.
-  * **`doc.type`** : the string `"document"` 
-  * **`doc.name`** : the string `"#doc"` 
-  * **`doc.kids`** : an array table of child processing instructions, the root element, and comment nodes.
-  * **`doc.root`** : the root element for the document
+  * <strong>`doc.type`</strong> : the string `"document"`
+  * <strong>`doc.name`</strong> : the string `"#doc"`
+  * <strong>`doc.kids`</strong> : an array table of child processing instructions, the root element, and comment nodes.
+  * <strong>`doc.root`</strong> : the root element for the document
 
 * **Element**
-  * **`someEl.type`** : the string `"element"` 
-  * **`someEl.name`** : the string name of the element (without any namespace prefix)
-  * **`someEl.nsURI`** : the namespace URI for this element; `nil` if no namespace is applied
-  * **`someEl.attr`** : a table of attributes, indexed by name and index
-    * `local value = someEl.attr['attribute-name']` : any namespace prefix of the attribute is not part of the name
-    * `local someAttr = someEl.attr[1]` : an single attribute table (see below); useful for iterating all attributes of an element, or for disambiguating attributes with the same name in different namespaces
-  * **`someEl.kids`** : an array table of child elements, text nodes, comment nodes, and processing instructions
-  * **`someEl.el`** : an array table of child elements only
-  * **`someEl.parent`** : reference to the the parent element or document table
+  * <strong>`someEl.type`</strong> : the string `"element"`
+  * <strong>`someEl.name`</strong> : the string name of the element (without any namespace prefix)
+  * <strong>`someEl.nsURI`</strong> : the namespace URI for this element; `nil` if no namespace is applied
+  * <strong>`someEl.attr`</strong> : a table of attributes, indexed by name and index
+      * `local value = someEl.attr['attribute-name']` : any namespace prefix of the attribute is not part of the name
+      * `local someAttr = someEl.attr[1]` : an single attribute table (see below); useful for iterating all attributes of an element, or for disambiguating attributes with the same name in different namespaces
+  * <strong>`someEl.kids`</strong> : an array table of child elements, text nodes, comment nodes, and processing instructions
+  * <strong>`someEl.el`</strong> : an array table of child elements only
+  * <strong>`someEl.parent`</strong> : reference to the the parent element or document table
 
-* **`Attribute`**
-  * **`someAttr.type`** : the string `"attribute"` 
-  * **`someAttr.name`** : the name of the attribute (without any namespace prefix)
-  * **`someAttr.value`** : the string value of the attribute (with XML and numeric entities unescaped)
-  * **`someEl.nsURI`** : the namespace URI for the attribute; `nil` if no namespace is applied
-  * **`someEl.parent`** : reference to the the parent element table
+* <strong>`Attribute`</strong>
+  * <strong>`someAttr.type`</strong> : the string `"attribute"`
+  * <strong>`someAttr.name`</strong> : the name of the attribute (without any namespace prefix)
+  * <strong>`someAttr.value`</strong> : the string value of the attribute (with XML and numeric entities unescaped)
+  * <strong>`someEl.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
+  * <strong>`someEl.parent`</strong> : reference to the the parent element table
 
-* **`Text`** - for both CDATA and normal text nodes
-  * **`someText.type`** : the string `"text"` 
-  * **`someText.name`** : the string `"#text"` 
-  * **`someText.value`** : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
-  * **`someText.parent`** : reference to the the parent element table
+* <strong>`Text`</strong> - for both CDATA and normal text nodes
+  * <strong>`someText.type`</strong> : the string `"text"`
+  * <strong>`someText.name`</strong> : the string `"#text"`
+  * <strong>`someText.value`</strong> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
+  * <strong>`someText.parent`</strong> : reference to the the parent element table
 
-* **`Comment`**
-  * **`someComment.type`** : the string `"comment"` 
-  * **`someComment.name`** : the string `"#comment"` 
-  * **`someComment.value`** : the string content of the attribute
-  * **`someComment.parent`** : reference to the the parent element or document table
+* <strong>`Comment`</strong>
+  * <strong>`someComment.type`</strong> : the string `"comment"`
+  * <strong>`someComment.name`</strong> : the string `"#comment"`
+  * <strong>`someComment.value`</strong> : the string content of the attribute
+  * <strong>`someComment.parent`</strong> : reference to the the parent element or document table
 
-* **`Processing Instruction`**
-  * **`someComment.type`** : the string `"pi"` 
-  * **`someComment.name`** : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
-  * **`someComment.value`** : the string content of the PI, i.e. everything but the name
-  * **`someComment.parent`** : reference to the the parent element or document table
+* <strong>`Processing Instruction`</strong>
+  * <strong>`someComment.type`</strong> : the string `"pi"`
+  * <strong>`someComment.name`</strong> : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
+  * <strong>`someComment.value`</strong> : the string content of the PI, i.e. everything but the name
+  * <strong>`someComment.parent`</strong> : reference to the the parent element or document table
 
 ### Finding Text for a DOM Element
 
@@ -102,7 +102,7 @@ The following function can be used to calculate the "inner text" for an element:
       end
       return table.concat(pieces)
     end
-    
+
     local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>>]]
     local para = SLAXML:dom(xml).root
     print(elementText(para)) --> "Hello you crazy World!""
