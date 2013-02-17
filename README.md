@@ -10,7 +10,7 @@ See the "Limitations / TODO" section below for more details.
 
 [1]: http://phrogz.net/lua/AKLOMParser.lua
 
-# Usage
+## Usage
     require 'slaxml'
 
     local myxml = io.open('my.xml'):read()
@@ -36,7 +36,7 @@ If you just want to see if it will parses your document correctly, you can simpl
 
 …which will cause SLAXML to use its built-in callbacks that print the results as seen.
 
-# DOM Builder
+## DOM Builder
 
 If you simply want to build tables from your XML, you can alternatively:
 
@@ -45,7 +45,7 @@ If you simply want to build tables from your XML, you can alternatively:
 
 The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
 
-## DOM Table Features
+### DOM Table Features
 
 * **Document** - the root table returned from the `SLAXML:dom()` method.
   * **`doc.type`** : the string `"document"`
@@ -89,7 +89,7 @@ The returned table is a 'document' comprised of tables for elements, attributes,
   * **`someComment.value`** : the string content of the PI, i.e. everything but the name
   * **`someComment.parent`** : reference to the the parent element or document table
 
-## Finding Text for a DOM Element
+### Finding Text for a DOM Element
 
 The following function can be used to calculate the "inner text" for an element:
 
@@ -107,7 +107,7 @@ The following function can be used to calculate the "inner text" for an element:
     local para = SLAXML:dom(xml).root
     print(elementText(para)) --> "Hello you crazy World!""
 
-## A Simpler DOM
+### A Simpler DOM
 
 If you want the DOM tables to be simpler-to-serialize you can supply the `simple` option via:
 
@@ -117,7 +117,7 @@ In this case no element will have a `parent` attribute, elements will not have a
 
 ----
 
-# Known Limitations / TODO
+## Known Limitations / TODO
 - Does not require or enforce well-formed XML (or report/fail on invalid)
 - No support for entity expansion other than
   `&lt; &gt; &quot; &apos; &amp;` and numeric ASCII entities like `&#10;`
@@ -128,14 +128,14 @@ In this case no element will have a `parent` attribute, elements will not have a
 
 ----
 
-# History
+## History
 
-## v0.4 2013-Feb-16
+### v0.4 2013-Feb-16
 + DOM adds `.parent` references
 + `SLAXML.ignoreWhitespace` is now `:parse(xml,{stripWhitespace=true})`
 + "simple" mode for DOM parsing
 
-## v0.3 2013-Feb-15
+### v0.3 2013-Feb-15
 + Support namespaces for elements and attributes
   + `<foo xmlns="barURI">` will call `startElement("foo",nil)` followed by
     `namespace("barURI")` (and then `attribute("xmlns","barURI",nil)`);
@@ -147,11 +147,11 @@ In this case no element will have a `parent` attribute, elements will not have a
   + Runtime errors are generated for any namespace prefix that cannot be resolved
 + Add (optional) DOM parser that validates hierarchy and supports namespaces
 
-## v0.2 2013-Feb-15
+### v0.2 2013-Feb-15
 + Supports expanding numeric entities e.g. `&#34;` -> `"`
 + Utility functions are local to parsing (not spamming the global namespace)
 
-## v0.1 2013-Feb-7
+### v0.1 2013-Feb-7
 + Option to ignore whitespace-only text nodes
 + Supports unescaped > in attributes
 + Supports CDATA
@@ -160,7 +160,7 @@ In this case no element will have a `parent` attribute, elements will not have a
 
 ----
 
-# License
+## License
 Copyright © 2013 [Gavin Kistner](mailto:!@phrogz.net)
 
 Licensed under the [MIT License](http://opensource.org/licenses/MIT). See LICENSE.txt for more details.
