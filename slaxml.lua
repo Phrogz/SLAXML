@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.4.1 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.4.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 SLAXML = {
-	VERSION = "0.4.1",
+	VERSION = "0.4.3",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -20,7 +20,7 @@ SLAXML = {
 		text = function(text)
 			print(string.format("  text: %q",text))
 		end,
-		closeElement = function(name)
+		closeElement = function(name,nsURI)
 			print(string.format("</%s>",name))
 		end,
 		namespace = function(nsURI) -- applies a default namespace to the current element
@@ -173,10 +173,17 @@ function SLAXML:parse(xml,options)
 	end
 
 	local function findElementClose()
-		first, last, match1 = find( xml, '^</([:%a_][:%w_.-]*)%s*>', pos )
+		first, last, match1, match2 = find( xml, '^</([%a_][%w_.-]*)%s*>', pos )
+		if first then
+			nsURI = nil
+			for i=#nsStack,1,-1 do if nsStack[i]['!'] then nsURI = nsStack[i]['!']; break end end
+		else
+			first, last, match2, match1 = find( xml, '^</([%a_][%w_.-]*):([%a_][%w_.-]*)%s*>', pos )
+			if first then nsURI = nsForPrefix(match2) end
+		end
 		if first then
 			finishText()
-			if self._call.closeElement then self._call.closeElement(match1) end
+			if self._call.closeElement then self._call.closeElement(match1,nsURI) end
 			pos = last+1
 			textStart = pos
 			pop(nsStack)
@@ -190,8 +197,8 @@ function SLAXML:parse(xml,options)
 				if startElement() then
 					state = "attributes"
 				else
-					-- TODO: scan up until the next < for speed
-					pos = pos + 1
+					first, last = find( xml, '^[^<]+', pos )
+					pos = (first and last or pos) + 1
 				end
 			end
 		elseif state=="attributes" then

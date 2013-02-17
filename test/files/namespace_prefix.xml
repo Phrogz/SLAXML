@@ -1,0 +1,3 @@
+<r xmlns:f="foo">
+	<f:a>explicit namespaced close</f:a>
+</r>

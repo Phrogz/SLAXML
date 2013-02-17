@@ -24,6 +24,20 @@ local function countParsings(xmlName,options,expected)
 	end
 end
 
+function test_namespace()
+	local elementStack = {}
+	SLAXML:parser{
+		startElement = function(name,nsURI)
+			table.insert(elementStack,{name=name,nsURI=nsURI})
+		end,
+		closeElement = function(name,nsURI)
+			local pop = table.remove(elementStack)
+			assertEqual(name,pop.name,"Got close "..name.." to close "..pop.name)
+			assertEqual(nsURI,pop.nsURI,"Got close namespace "..(nsURI or "nil").." to close namespace "..(pop.nsURI or "nil"))
+		end,
+	}:parse(XML['namespace_prefix'])
+end
+
 function test_dom()
 	local function checkParentage(el)
 		for _,child in ipairs(el.kids) do

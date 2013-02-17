@@ -19,7 +19,7 @@ See the "Limitations / TODO" section below for more details.
     parser = SLAXML:parser{
       startElement = function(name,nsURI)       end, -- When "<foo" or <x:foo is seen
       attribute    = function(name,value,nsURI) end, -- attribute found on current element
-      closeElement = function(name)             end, -- When "</foo>" or "/>" is seen
+      closeElement = function(name,nsURI)       end, -- When "</foo>" or </x:foo> or "/>" is seen
       text         = function(text)             end, -- text and CDATA nodes
       comment      = function(content)          end, -- comments
       pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
