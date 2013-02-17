@@ -143,5 +143,33 @@ function test_dom_namespaces()
 	assertEqual(nsByValue['a3-y'],yNS)
 end
 
-runTests{ useANSI=false }
+function test_invalid_documents()
+	local silentParser = SLAXML:parser{}
+	assertErrors(silentParser.parse, silentParser, XML['invalid_pi_only']         )
+	assertErrors(silentParser.parse, silentParser, XML['invalid_unclosed_tags']   )
+	assertErrors(silentParser.parse, silentParser, XML['invalid_literal_gtamplt'] )
+end
 
+function test_simplest()
+	local expected = {
+		pi           = 0,
+		comment      = 0,
+		startElement = 1,
+		attribute    = 0,
+		text         = 0,
+		closeElement = 1,
+		namespace    = 0,
+	}
+	local counts,counters = {},{}
+	for name,_ in pairs(expected) do
+		counts[name]   = 0
+		counters[name] = function() counts[name]=counts[name]+1 end
+	end
+	local countParser = SLAXML:parser(counters)
+	countParser:parse(XML['root_only'])
+	for name,ct in pairs(expected) do
+		assertEqual(counts[name],ct,"There should have been be exactly "..ct.." "..name.."() callback(s)")
+	end
+end
+
+runTests{ useANSI=false }
