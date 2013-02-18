@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.5 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.5.1 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 local SLAXML = {
-	VERSION = "0.5",
+	VERSION = "0.5.1",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -23,9 +23,6 @@ local SLAXML = {
 		closeElement = function(name,nsURI)
 			print(string.format("</%s>",name))
 		end,
-		namespace = function(nsURI) -- applies a default namespace to the current element
-			print(string.format("  (xmlns=%s)",nsURI))
-		end,
 	}
 }
 
@@ -42,7 +39,9 @@ function SLAXML:parse(xml,options)
 	local pos = 1
 	local state = "text"
 	local textStart = 1
-	local currentElement
+	local currentElement={}
+	local currentAttributes={}
+	local currentAttributeCt
 	local nsStack = {}
 
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
@@ -91,20 +90,20 @@ function SLAXML:parse(xml,options)
 	local function startElement()
 		first, last, match1 = find( xml, '^<([%a_][%w_.-]*)', pos )
 		if first then
-			nsURI = nil
+			currentElement[2] = nil
 			finishText()
 			pos = last+1
 			first,last,match2 = find(xml, '^:([%a_][%w_.-]*)', pos )
 			if first then
-				nsURI = nsForPrefix(match1)
-				currentElement = match2
+				currentElement[1] = match2
+				currentElement[2] = nsForPrefix(match1)
 				match1 = match2
 				pos = last+1
 			else
-				currentElement = match1
-				for i=#nsStack,1,-1 do if nsStack[i]['!'] then nsURI = nsStack[i]['!']; break end end
+				currentElement[1] = match1
+				for i=#nsStack,1,-1 do if nsStack[i]['!'] then currentElement[2] = nsStack[i]['!']; break end end
 			end
-			if self._call.startElement then self._call.startElement(match1,nsURI) end
+			currentAttributeCt = 0
 			push(nsStack,{})
 			return true
 		end
@@ -127,22 +126,23 @@ function SLAXML:parse(xml,options)
 			end
 		end
 		if match1 and match2 then
-			nsURI = nil
+			local currentAttribute = {match1,match2}
 			local prefix,name = string.match(match1,'^([^:]+):([^:]+)$')
 			if prefix then
 				if prefix=='xmlns' then
 					nsStack[#nsStack][name] = match2
 				else
-					nsURI = nsForPrefix(prefix)
-					match1 = name
+					currentAttribute[1] = name
+					currentAttribute[3] = nsForPrefix(prefix)
 				end
 			else
 				if match1=='xmlns' then
 					nsStack[#nsStack]['!'] = match2
-					if self._call.namespace then self._call.namespace(match2) end
+					currentElement[2] = match2
 				end
 			end
-			if self._call.attribute then self._call.attribute(match1,match2,nsURI) end
+			currentAttributeCt = currentAttributeCt + 1
+			currentAttributes[currentAttributeCt] = currentAttribute
 			return true
 		end
 	end
@@ -164,9 +164,14 @@ function SLAXML:parse(xml,options)
 			state = "text"
 			pos = last+1
 			textStart = pos
+
+			if self._call.startElement then self._call.startElement(unpack(currentElement)) end
+			if self._call.attribute then
+			for i=1,currentAttributeCt do self._call.attribute(unpack(currentAttributes[i])) end end
+
 			if match1=="/" then
 				pop(nsStack)
-				if self._call.closeElement then self._call.closeElement(currentElement) end
+				if self._call.closeElement then self._call.closeElement(unpack(currentElement)) end
 			end
 			return true
 		end

@@ -36,7 +36,6 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
       text         = function(text)             end, -- text and CDATA nodes
       comment      = function(content)          end, -- comments
       pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
-      namespace    = function(nsURI)            end, -- when xmlns="..." is seen (after startElement)
     }
 
     -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text
@@ -145,6 +144,10 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## History
+
+### v0.5.1 2013-Feb-18
++ `<foo xmlns="bar">` now directly generates `startElement("foo","bar")`
+  with no post callback for `namespace` required.
 
 ### v0.5 2013-Feb-18
 + Use the `local SLAXML=require 'slaxml'` pattern to prevent any pollution

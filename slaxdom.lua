@@ -19,9 +19,6 @@ function SLAXML:dom(xml,opts)
 			current = el
 			push(stack,el)
 		end,
-		namespace = function(nsURI)
-			current.nsURI = nsURI
-		end,
 		attribute = function(name,value,nsURI)
 			if not current or current.type~="element" then error(("Encountered an attribute %s=%s but I wasn't inside an element"):format(name,value)) end
 			local attr = {type='attribute',name=name,nsURI=nsURI,value=value,parent=rich and current or nil}
