@@ -21,10 +21,10 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 * Unescapes named XML entities (`&lt; &gt; &amp; &quot; &apos;`) and numeric entities (e.g. `&#10;`) in attributes and text nodes (but—properly—not in comments or CDATA). Properly handles edge cases like `&#38;amp;`.
 * Optionally ignore whitespace-only text nodes (as appear when indenting XML markup).
 * Includes a DOM parser that is a both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
-* Adds only a single `SLAXML` key to the environment; there is no spam of utility functions polluting the global namespace.
+* Does not add any keys to the global namespace.
 
 ## Usage
-    require 'slaxml'
+    local SLAXML = require 'slaxml'
 
     local myxml = io.open('my.xml'):read()
 
@@ -45,7 +45,7 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 
 If you just want to see if it will parse your document correctly, you can simply do:
 
-    require 'slaxml'
+    local SLAXML = require 'slaxml'
     SLAXML:parse(myxml)
 
 …which will cause SLAXML to use its built-in callbacks that print the results as seen.
@@ -54,7 +54,7 @@ If you just want to see if it will parse your document correctly, you can simply
 
 If you simply want to build tables from your XML, you can alternatively:
 
-    require 'slaxdom' -- requires the slaxml.lua file; make sure you copy it also
+    local SLAXML = require 'slaxdom' -- requires the slaxml.lua file; make sure you copy it also
     local doc = SLAXML:dom(myxml)
 
 The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
@@ -126,17 +126,29 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## Known Limitations / TODO
-- Does not require or enforce well-formed XML (silently ignores and consumes certain syntax errors)
-- No support for entity expansion other than
-  `&lt; &gt; &quot; &apos; &amp;` and numeric ASCII entities like `&#10;`
+- Does not require or enforce well-formed XML. Certain syntax errors are
+  silently ignored and consumed. For example:
+  - `foo="yes & no"` is seen as a valid attribute
+  - `<root><child>` invokes two `startElement()` calls
+    but no `closeElement()` calls
+  - `<foo></bar>` invokes `startElement("foo")`
+    followed by `closeElement("bar")`
+- No support for custom entity expansion other than the standard XML
+  entities (`&lt; &gt; &quot; &apos; &amp;`) and numeric ASCII entities
+  (e.g. `&#10;`)
 - XML Declarations (`<?xml version="1.x"?>`) are incorrectly reported
   as Processing Instructions
 - No support for DTDs
-- No support for extended characters in element/attribute names
+- No support for extended (Unicode) characters in element/attribute names
+- No support for charset
 - No support for [XInclude](http://www.w3.org/TR/xinclude/)
 
 
 ## History
+
+### v0.5 2013-Feb-18
++ Use the `local SLAXML=require 'slaxml'` pattern to prevent any pollution
+  of the global namespace.
 
 ### v0.4.3 2013-Feb-17
 + Bugfix to allow empty attributes, i.e. `foo=""`

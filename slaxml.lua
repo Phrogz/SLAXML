@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.4.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.5 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
-SLAXML = {
-	VERSION = "0.4.3",
+local SLAXML = {
+	VERSION = "0.5",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -210,3 +210,5 @@ function SLAXML:parse(xml,options)
 		end
 	end
 end
+
+return SLAXML

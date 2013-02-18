@@ -1,6 +1,6 @@
 package.path = '../?.lua;' .. package.path
 
-require 'slaxdom'
+local SLAXML = require 'slaxdom'
 require 'io'
 require 'lunity'
 
