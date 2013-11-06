@@ -33,6 +33,13 @@ end
 function SLAXML:parse(xml,options)
 	if not options then options = { stripWhitespace=false } end
 
+	-- Lua 5.2 support
+	local unpack_
+	if unpack then
+		unpack_ = unpack
+	else
+		unpack_ = table.unpack
+	end
 	-- Cache references for maximum speed
 	local find, sub, gsub, char, push, pop = string.find, string.sub, string.gsub, string.char, table.insert, table.remove
 	local first, last, match1, match2, match3, pos2, nsURI
@@ -165,13 +172,13 @@ function SLAXML:parse(xml,options)
 			pos = last+1
 			textStart = pos
 
-			if self._call.startElement then self._call.startElement(unpack(currentElement)) end
+			if self._call.startElement then self._call.startElement(unpack_(currentElement)) end
 			if self._call.attribute then
-			for i=1,currentAttributeCt do self._call.attribute(unpack(currentAttributes[i])) end end
+			for i=1,currentAttributeCt do self._call.attribute(unpack_(currentAttributes[i])) end end
 
 			if match1=="/" then
 				pop(nsStack)
-				if self._call.closeElement then self._call.closeElement(unpack(currentElement)) end
+				if self._call.closeElement then self._call.closeElement(unpack_(currentElement)) end
 			end
 			return true
 		end
