@@ -128,8 +128,6 @@ In this case no table will have a `parent` attribute, elements will not have the
 - Does not require or enforce well-formed XML. Certain syntax errors are
   silently ignored and consumed. For example:
   - `foo="yes & no"` is seen as a valid attribute
-  - `<root><child>` invokes two `startElement()` calls
-    but no `closeElement()` calls
   - `<foo></bar>` invokes `startElement("foo")`
     followed by `closeElement("bar")`
   - `<foo> 5 < 6 </foo>` is seen as valid text contents
