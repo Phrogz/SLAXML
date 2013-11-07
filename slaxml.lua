@@ -48,6 +48,7 @@ function SLAXML:parse(xml,options)
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
 	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char(s) or orig end
 	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
+	local anyElement = false
 
 	local function finishText()
 		if first>textStart and self._call.text then
@@ -89,6 +90,7 @@ function SLAXML:parse(xml,options)
 	end
 
 	local function startElement()
+		anyElement = true
 		first, last, match1 = find( xml, '^<([%a_][%w_.-]*)', pos )
 		if first then
 			currentElement[2] = nil
@@ -214,6 +216,9 @@ function SLAXML:parse(xml,options)
 			end
 		end
 	end
+
+	if not anyElement then error("Parsing did not discover any elements") end
+	if #nsStack > 0 then error("Parsing ended with unclosed elements") end
 end
 
 return SLAXML
