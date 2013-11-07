@@ -53,7 +53,7 @@ If you just want to see if it will parse your document correctly, you can simply
 
 If you simply want to build tables from your XML, you can alternatively:
 
-    local SLAXML = require 'slaxdom' -- requires the slaxml.lua file; make sure you copy it also
+    local SLAXML = require 'slaxdom' -- also requires slaxml.lua; be sure to copy both files
     local doc = SLAXML:dom(myxml)
 
 The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
@@ -132,6 +132,7 @@ In this case no table will have a `parent` attribute, elements will not have the
     but no `closeElement()` calls
   - `<foo></bar>` invokes `startElement("foo")`
     followed by `closeElement("bar")`
+  - `<foo> 5 < 6 </foo>` is seen as valid text contents
 - No support for custom entity expansion other than the standard XML
   entities (`&lt; &gt; &quot; &apos; &amp;`) and numeric ASCII entities
   (e.g. `&#10;`)
@@ -144,6 +145,13 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## History
+
+### v0.5.2 2013-Nov-7
++ Lua 5.2 compatible
++ Parser now errors if it finishes without finding a root element,
+  or if there are unclosed elements at the end.
+  (Proper element pairing is not enforced by the parser, but is—as
+  in previous releases—enforced by the DOM builder.)
 
 ### v0.5.1 2013-Feb-18
 + `<foo xmlns="bar">` now directly generates `startElement("foo","bar")`
