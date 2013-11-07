@@ -166,8 +166,7 @@ function SLAXML:parse(xml,options)
 			textStart = pos
 
 			if self._call.startElement then self._call.startElement(unpack(currentElement)) end
-			if self._call.attribute then
-			for i=1,currentAttributeCt do self._call.attribute(unpack(currentAttributes[i])) end end
+			if self._call.attribute then for i=1,currentAttributeCt do self._call.attribute(unpack(currentAttributes[i])) end end
 
 			if match1=="/" then
 				pop(nsStack)
