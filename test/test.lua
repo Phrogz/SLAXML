@@ -4,7 +4,7 @@ local SLAXML = require 'slaxdom'
 require 'io'
 require 'lunity'
 
-module( 'TEST_LXSC', lunity )
+module( 'TEST_SLAXML', lunity )
 
 local XML = {}
 for filename in io.popen('ls files'):lines() do
@@ -123,6 +123,16 @@ function test_dom_entities()
 	assertEqual(t.attr.cond,[[ampersand=='&' and quote=='"' and apos=="'"]])
 
 	assertEqual(t.kids[6].value,' your code &gt; all ')
+end
+
+function test_xml_namespace()
+	local doc = SLAXML:dom(XML['xml_namespace'])
+	for i,attr in ipairs(doc.root.attr) do
+		if attr.name=='space' then
+			assertEqual(attr.nsURI,[[http://www.w3.org/XML/1998/namespace]])
+			break
+		end
+	end
 end
 
 function test_dom_namespaces()

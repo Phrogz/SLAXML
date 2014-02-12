@@ -1,5 +1,5 @@
 --[=====================================================================[
-v0.5.2 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.5.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 local SLAXML = {
@@ -85,6 +85,7 @@ function SLAXML:parse(xml,options)
 	end
 
 	local function nsForPrefix(prefix)
+		if prefix=='xml' then return 'http://www.w3.org/XML/1998/namespace' end -- http://www.w3.org/TR/xml-names/#ns-decl
 		for i=#nsStack,1,-1 do if nsStack[i][prefix] then return nsStack[i][prefix] end end
 		error(("Cannot find namespace for prefix %s"):format(prefix))
 	end

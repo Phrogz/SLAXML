@@ -140,9 +140,14 @@ In this case no table will have a `parent` attribute, elements will not have the
 - No support for extended (Unicode) characters in element/attribute names
 - No support for charset
 - No support for [XInclude](http://www.w3.org/TR/xinclude/)
+- Does not ensure that the reserved `xml` prefix is never redefined to an illegal namespace
+- Does not ensure that the reserved `xmlns` prefix is never used as an element prefix
 
 
 ## History
+
+### v0.5.3 2014-Feb-12
++ Fixes Issue #3: The [reserved `xml` prefix](http://www.w3.org/TR/xml-names/#ns-decl) may be used without pre-declaring it. (Thanks David Durkee.)
 
 ### v0.5.2 2013-Nov-7
 + Lua 5.2 compatible
