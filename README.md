@@ -24,28 +24,33 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 * Does not add any keys to the global namespace.
 
 ## Usage
-    local SLAXML = require 'slaxml'
 
-    local myxml = io.open('my.xml'):read('*all')
+```lua
+local SLAXML = require 'slaxml'
 
-    -- Specify as many/few of these as you like
-    parser = SLAXML:parser{
-      startElement = function(name,nsURI)       end, -- When "<foo" or <x:foo is seen
-      attribute    = function(name,value,nsURI) end, -- attribute found on current element
-      closeElement = function(name,nsURI)       end, -- When "</foo>" or </x:foo> or "/>" is seen
-      text         = function(text)             end, -- text and CDATA nodes
-      comment      = function(content)          end, -- comments
-      pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
-    }
+local myxml = io.open('my.xml'):read('*all')
 
-    -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text
-    -- (does not strip leading/trailing whitespace from CDATA)
-    parser:parse(myxml,{stripWhitespace=true})
+-- Specify as many/few of these as you like
+parser = SLAXML:parser{
+  startElement = function(name,nsURI)       end, -- When "<foo" or <x:foo is seen
+  attribute    = function(name,value,nsURI) end, -- attribute found on current element
+  closeElement = function(name,nsURI)       end, -- When "</foo>" or </x:foo> or "/>" is seen
+  text         = function(text)             end, -- text and CDATA nodes
+  comment      = function(content)          end, -- comments
+  pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
+}
+
+-- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text
+-- (does not strip leading/trailing whitespace from CDATA)
+parser:parse(myxml,{stripWhitespace=true})
+```
 
 If you just want to see if it will parse your document correctly, you can simply do:
 
-    local SLAXML = require 'slaxml'
-    SLAXML:parse(myxml)
+```lua
+local SLAXML = require 'slaxml'
+SLAXML:parse(myxml)
+```
 
 …which will cause SLAXML to use its built-in callbacks that print the results as they are seen.
 
@@ -53,8 +58,10 @@ If you just want to see if it will parse your document correctly, you can simply
 
 If you simply want to build tables from your XML, you can alternatively:
 
-    local SLAXML = require 'slaxdom' -- also requires slaxml.lua; be sure to copy both files
-    local doc = SLAXML:dom(myxml)
+```lua
+local SLAXML = require 'slaxdom' -- also requires slaxml.lua; be sure to copy both files
+local doc = SLAXML:dom(myxml)
+```
 
 The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
 
@@ -101,25 +108,29 @@ The returned table is a 'document' comprised of tables for elements, attributes,
 
 The following function can be used to calculate the "inner text" for an element:
 
-    function elementText(el)
-      local pieces = {}
-      for _,n in ipairs(el.kids) do
-        if n.type=='element' then pieces[#pieces+1] = elementText(n)
-        elseif n.type=='text' then pieces[#pieces+1] = n.value
-        end
-      end
-      return table.concat(pieces)
+```lua
+function elementText(el)
+  local pieces = {}
+  for _,n in ipairs(el.kids) do
+    if n.type=='element' then pieces[#pieces+1] = elementText(n)
+    elseif n.type=='text' then pieces[#pieces+1] = n.value
     end
+  end
+  return table.concat(pieces)
+end
 
-    local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>>]]
-    local para = SLAXML:dom(xml).root
-    print(elementText(para)) --> "Hello you crazy World!""
+local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>>]]
+local para = SLAXML:dom(xml).root
+print(elementText(para)) --> "Hello you crazy World!""
+```
 
 ### A Simpler DOM
 
 If you want the DOM tables to be simpler-to-serialize you can supply the `simple` option via:
 
-    local dom = SLAXML:dom(myXML,{ simple=true })
+```lua
+local dom = SLAXML:dom(myXML,{ simple=true })
+```
 
 In this case no table will have a `parent` attribute, elements will not have the `el` collection, and the `attr` collection will be a simple array (without values accessible directly via attribute name). In short, the output will be a strict hierarchy with no internal references to other tables, and all data represented in exactly one spot.
 
