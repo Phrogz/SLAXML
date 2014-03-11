@@ -26,7 +26,7 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 ## Usage
     local SLAXML = require 'slaxml'
 
-    local myxml = io.open('my.xml'):read()
+    local myxml = io.open('my.xml'):read('*all')
 
     -- Specify as many/few of these as you like
     parser = SLAXML:parser{
@@ -47,7 +47,7 @@ If you just want to see if it will parse your document correctly, you can simply
     local SLAXML = require 'slaxml'
     SLAXML:parse(myxml)
 
-…which will cause SLAXML to use its built-in callbacks that print the results as seen.
+…which will cause SLAXML to use its built-in callbacks that print the results as they are seen.
 
 ## DOM Builder
 
