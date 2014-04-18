@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.5.3 Copyright © 2013 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.6 Copyright © 2013-2014 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 local SLAXML = {
-	VERSION = "0.5.3",
+	VERSION = "0.6",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -11,16 +11,24 @@ local SLAXML = {
 		comment = function(content)
 			print(string.format("<!-- %s -->",content))
 		end,
-		startElement = function(name,nsURI)
-			print(string.format("<%s%s>",name,nsURI and (" ("..nsURI..")") or ""))
+		startElement = function(name,nsURI,nsPrefix)
+			                 io.write("<")
+			if nsPrefix then io.write(nsPrefix,":") end
+			                 io.write(name)
+			if nsURI    then io.write(" (ns='",nsURI,"')") end
+			                 print(">")
 		end,
-		attribute = function(name,value,nsURI)
-			print(string.format("  %s=%q%s",name,value,nsURI and (" ("..nsURI..")") or ""))
+		attribute = function(name,value,nsURI,nsPrefix)
+			io.write('  ')
+			if nsPrefix then io.write(nsPrefix,":") end
+			                 io.write(name,'=',string.format('%q',value))
+			if nsURI    then io.write(" (ns='",nsURI,"')") end
+			io.write("\n")
 		end,
 		text = function(text)
 			print(string.format("  text: %q",text))
 		end,
-		closeElement = function(name,nsURI)
+		closeElement = function(name,nsURI,nsPrefix)
 			print(string.format("</%s>",name))
 		end,
 	}
@@ -42,7 +50,7 @@ function SLAXML:parse(xml,options)
 	local textStart = 1
 	local currentElement={}
 	local currentAttributes={}
-	local currentAttributeCt
+	local currentAttributeCt -- manually track length since the table is re-used
 	local nsStack = {}
 
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
@@ -94,13 +102,14 @@ function SLAXML:parse(xml,options)
 		anyElement = true
 		first, last, match1 = find( xml, '^<([%a_][%w_.-]*)', pos )
 		if first then
-			currentElement[2] = nil
+			currentElement[2] = nil -- reset the nsURI, since this table is re-used
+			currentElement[3] = nil -- reset the nsPrefix, since this table is re-used
 			finishText()
 			pos = last+1
 			first,last,match2 = find(xml, '^:([%a_][%w_.-]*)', pos )
 			if first then
 				currentElement[1] = match2
-				currentElement[2] = nsForPrefix(match1)
+				currentElement[3] = match1 -- Save the prefix for later resolution
 				match1 = match2
 				pos = last+1
 			else
@@ -137,12 +146,12 @@ function SLAXML:parse(xml,options)
 					nsStack[#nsStack][name] = match2
 				else
 					currentAttribute[1] = name
-					currentAttribute[3] = nsForPrefix(prefix)
+					currentAttribute[4] = prefix
 				end
 			else
 				if match1=='xmlns' then
 					nsStack[#nsStack]['!'] = match2
-					currentElement[2] = match2
+					currentElement[2]      = match2
 				end
 			end
 			currentAttributeCt = currentAttributeCt + 1
@@ -169,8 +178,15 @@ function SLAXML:parse(xml,options)
 			pos = last+1
 			textStart = pos
 
+			-- Resolve namespace prefixes AFTER all new/redefined prefixes have been parsed
+			if currentElement[3] then currentElement[2] = nsForPrefix(currentElement[3])    end
 			if self._call.startElement then self._call.startElement(unpack(currentElement)) end
-			if self._call.attribute then for i=1,currentAttributeCt do self._call.attribute(unpack(currentAttributes[i])) end end
+			if self._call.attribute then
+				for i=1,currentAttributeCt do
+					if currentAttributes[i][4] then currentAttributes[i][3] = nsForPrefix(currentAttributes[i][4]) end
+					self._call.attribute(unpack(currentAttributes[i]))
+				end
+			end
 
 			if match1=="/" then
 				pop(nsStack)

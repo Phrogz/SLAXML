@@ -137,9 +137,38 @@ end
 
 function test_xml_namespace_immediate_use()
 	local doc = SLAXML:dom(XML['namespace_declare_and_use'])
-	assertEqual(#doc.root.el,1)
-	local z = doc.root.el[1]
-	assertEqual(z.nsURI,'zoo')
+	local cat1 = doc.root.el[1]
+	assertEqual(cat1.name,'cat')
+	assertEqual(cat1.nsURI,'cat')
+	local cat2 = cat1.el[1]
+	assertEqual(cat2.name, 'cat')
+	assertEqual(cat2.nsURI,'cat')
+	local dog1 = cat1.el[2]
+	assertEqual(dog1.name, 'dog')
+	assertEqual(dog1.nsURI,'dog')
+	local cat3 = dog1.el[1]
+	assertEqual(cat3.name, 'cat')
+	assertEqual(cat3.nsURI,'cat')
+	local hog1 = dog1.el[2]
+	assertEqual(hog1.name, 'hog')
+	assertEqual(hog1.nsURI,'hog')
+	for _,attr in ipairs(hog1.attr) do
+		if attr.value=='yes' then
+			assertEqual(attr.nsURI,attr.name)
+		end
+	end
+	local hog2 = hog1.el[1]
+	assertEqual(hog2.name, 'hog')
+	assertEqual(hog2.nsURI,'hog')
+	local bog1 = hog1.el[2]
+	assertEqual(bog1.name, 'bog')
+	assertEqual(bog1.nsURI,'bog')
+	local dog2 = dog1.el[3]
+	assertEqual(dog2.name, 'dog')
+	assertEqual(dog2.nsURI,'dog')
+	local cog2 = doc.root.el[2]
+	assertEqual(cog2.name, 'cog')
+	assertEqual(cog2.nsURI,'cog')
 end
 
 function test_dom_namespaces()

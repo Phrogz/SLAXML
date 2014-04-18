@@ -1,3 +1,14 @@
 <r>
-	<z:el xmlns:z="zoo">declaring and using a namespace on the same element is legal</z:el>
+	<cat xmlns="cat" xmlns:a="dog">
+		<cat />
+		<a:dog>
+			<cat />
+			<a:hog a:hog="yes" xmlns:a="hog" xmlns:b="bog" b:bog="yes">
+				<a:hog />
+				<b:bog />
+			</a:hog>
+			<a:dog />
+		</a:dog>
+	</cat>
+	<c:cog xmlns:c="cog" />
 </r>

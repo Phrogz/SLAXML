@@ -32,12 +32,12 @@ local myxml = io.open('my.xml'):read('*all')
 
 -- Specify as many/few of these as you like
 parser = SLAXML:parser{
-  startElement = function(name,nsURI)       end, -- When "<foo" or <x:foo is seen
-  attribute    = function(name,value,nsURI) end, -- attribute found on current element
-  closeElement = function(name,nsURI)       end, -- When "</foo>" or </x:foo> or "/>" is seen
-  text         = function(text)             end, -- text and CDATA nodes
-  comment      = function(content)          end, -- comments
-  pi           = function(target,content)   end, -- processing instructions e.g. "<?yes mon?>"
+  startElement = function(name,nsURI,nsPrefix)       end, -- When "<foo" or <x:foo is seen
+  attribute    = function(name,value,nsURI,nsPrefix) end, -- attribute found on current element
+  closeElement = function(name,nsURI)                end, -- When "</foo>" or </x:foo> or "/>" is seen
+  text         = function(text)                      end, -- text and CDATA nodes
+  comment      = function(content)                   end, -- comments
+  pi           = function(target,content)            end, -- processing instructions e.g. "<?yes mon?>"
 }
 
 -- Ignore whitespace-only text nodes and strip leading/trailing whitespace from text
@@ -86,8 +86,8 @@ The returned table is a 'document' comprised of tables for elements, attributes,
   * <strong>`someAttr.type`</strong> : the string `"attribute"`
   * <strong>`someAttr.name`</strong> : the name of the attribute (without any namespace prefix)
   * <strong>`someAttr.value`</strong> : the string value of the attribute (with XML and numeric entities unescaped)
-  * <strong>`someEl.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
-  * <strong>`someEl.parent`</strong> : reference to the the parent element table
+  * <strong>`someAttr.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
+  * <strong>`someAttr.parent`</strong> : reference to the the owning element table
 * **Text** - for both CDATA and normal text nodes
   * <strong>`someText.type`</strong> : the string `"text"`
   * <strong>`someText.name`</strong> : the string `"#text"`
@@ -156,6 +156,10 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## History
+
+### v0.6 2014-Apr-18
++ Fixes Issue #5 (and more): Namespace prefixes defined on element are now properly applied to the element itself and any attributes using them when the definitions appear later in source than the prefix usage.
++ The streaming parser now supplies the namespace prefix for elements and attributes.
 
 ### v0.5.3 2014-Feb-12
 + Fixes Issue #3: The [reserved `xml` prefix](http://www.w3.org/TR/xml-names/#ns-decl) may be used without pre-declaring it. (Thanks David Durkee.)
