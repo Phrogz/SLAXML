@@ -158,7 +158,7 @@ In this case no table will have a `parent` attribute, elements will not have the
 ## History
 
 ### v0.6 2014-Apr-18
-+ Fixes Issue #5 (and more): Namespace prefixes defined on element are now properly applied to the element itself and any attributes using them when the definitions appear later in source than the prefix usage.
++ Fixes Issue #5 (and more): Namespace prefixes defined on element are now properly applied to the element itself and any attributes using them when the definitions appear later in source than the prefix usage. (Thanks Oliver Kroth.)
 + The streaming parser now supplies the namespace prefix for elements and attributes.
 
 ### v0.5.3 2014-Feb-12
