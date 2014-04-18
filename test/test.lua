@@ -135,6 +135,13 @@ function test_xml_namespace()
 	end
 end
 
+function test_xml_namespace_immediate_use()
+	local doc = SLAXML:dom(XML['namespace_declare_and_use'])
+	assertEqual(#doc.root.el,1)
+	local z = doc.root.el[1]
+	assertEqual(z.nsURI,'zoo')
+end
+
 function test_dom_namespaces()
 	local scxmlNS  = "http://www.w3.org/2005/07/scxml"
 	local phrogzNS = "http://phrogz.net/"

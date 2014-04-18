@@ -1,0 +1,3 @@
+<r>
+	<z:el xmlns:z="zoo">declaring and using a namespace on the same element is legal</z:el>
+</r>
