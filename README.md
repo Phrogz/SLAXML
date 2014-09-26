@@ -157,6 +157,9 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 ## History
 
+### v0.6.1 2014-Sep-25
++ Fixes Issue #6, adding support for hexadecimal entities (e.g. `&#x263a;`). (Thanks Leorex/Ben Bishop)
+
 ### v0.6 2014-Apr-18
 + Fixes Issue #5 (and more): Namespace prefixes defined on element are now properly applied to the element itself and any attributes using them when the definitions appear later in source than the prefix usage. (Thanks Oliver Kroth.)
 + The streaming parser now supplies the namespace prefix for elements and attributes.
