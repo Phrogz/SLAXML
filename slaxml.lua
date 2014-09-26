@@ -54,7 +54,7 @@ function SLAXML:parse(xml,options)
 	local nsStack = {}
 
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char(s) or orig end
+	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char('0'..s) or orig end  
 	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
 	local anyElement = false
 
