@@ -260,4 +260,12 @@ function test_whitespace()
 	assertEqual(a.kids[2].value,"\nIt's a [raw][[raw]] >\nstring that <do/> not care\n	about honey badgers.\n\n  ")
 end
 
+function test_utf8()
+	local root = SLAXML:dom(XML['utf8'],{stripWhitespace=true}).root
+	for _,s in ipairs(root.kids) do
+		assertEqual(s.attr.a,"crêpes: €3")
+		assertEqual(s.kids[1].value,"crêpes: €3")
+	end
+end
+
 runTests{ useANSI=false }

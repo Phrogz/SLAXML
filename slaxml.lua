@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.6.1 Copyright © 2013-2014 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.7 Copyright © 2013-2014 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 local SLAXML = {
-	VERSION = "0.6.1",
+	VERSION = "0.7",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -12,16 +12,16 @@ local SLAXML = {
 			print(string.format("<!-- %s -->",content))
 		end,
 		startElement = function(name,nsURI,nsPrefix)
-			                 io.write("<")
+											 io.write("<")
 			if nsPrefix then io.write(nsPrefix,":") end
-			                 io.write(name)
+											 io.write(name)
 			if nsURI    then io.write(" (ns='",nsURI,"')") end
-			                 print(">")
+											 print(">")
 		end,
 		attribute = function(name,value,nsURI,nsPrefix)
 			io.write('  ')
 			if nsPrefix then io.write(nsPrefix,":") end
-			                 io.write(name,'=',string.format('%q',value))
+											 io.write(name,'=',string.format('%q',value))
 			if nsURI    then io.write(" (ns='",nsURI,"')") end
 			io.write("\n")
 		end,
@@ -42,7 +42,7 @@ function SLAXML:parse(xml,options)
 	if not options then options = { stripWhitespace=false } end
 
 	-- Cache references for maximum speed
-	local find, sub, gsub, char, push, pop = string.find, string.sub, string.gsub, string.char, table.insert, table.remove
+	local find, sub, gsub, char, push, pop, concat = string.find, string.sub, string.gsub, string.char, table.insert, table.remove, table.concat
 	local first, last, match1, match2, match3, pos2, nsURI
 	local unpack = unpack or table.unpack
 	local pos = 1
@@ -52,11 +52,32 @@ function SLAXML:parse(xml,options)
 	local currentAttributes={}
 	local currentAttributeCt -- manually track length since the table is re-used
 	local nsStack = {}
+	local anyElement = false
 
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and char('0'..s) or orig end  
+	local utf8bits = { {0x7FF,{192,32},{128,64}}, {0xFFFF,{224,16},{128,64},{128,64}}, {0x1FFFFF,{240,8},{128,64},{128,64},{128,64}} }
+	function utf8(decimal) -- decode a code point to a utf8-encoded string
+		if decimal<=127 then
+			return char(decimal)
+		else
+			local charbytes = {}
+			for b,lim in ipairs(utf8bits) do
+				if decimal<=lim[1] then
+					for i=b+1,2,-1 do
+						local prefix,max = lim[i+1][1],lim[i+1][2]
+						local mod = decimal % max
+						charbytes[i] = char( prefix + mod )
+						decimal = ( decimal - mod ) / max
+					end
+					charbytes[1] = char( decimal + lim[2][1] )
+					break
+				end
+			end
+			return concat(charbytes)
+		end
+	end
+	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8(tonumber('0'..s)) or orig end  
 	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
-	local anyElement = false
 
 	local function finishText()
 		if first>textStart and self._call.text then

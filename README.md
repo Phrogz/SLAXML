@@ -143,7 +143,7 @@ In this case no table will have a `parent` attribute, elements will not have the
     followed by `closeElement("bar")`
   - `<foo> 5 < 6 </foo>` is seen as valid text contents
 - No support for custom entity expansion other than the standard XML
-  entities (`&lt; &gt; &quot; &apos; &amp;`) and numeric ASCII entities
+  entities (`&lt; &gt; &quot; &apos; &amp;`) and numeric entities
   (e.g. `&#10;` or `&#x3c;`)
 - XML Declarations (`<?xml version="1.x"?>`) are incorrectly reported
   as Processing Instructions
@@ -156,6 +156,13 @@ In this case no table will have a `parent` attribute, elements will not have the
 
 
 ## History
+
+### v0.7 2014-Sep-26
++ Decodes entities above 127 as UTF8 (decimal and hexadecimal).
+  - The encoding specified by the document is (still) ignored.
+    If you parse an XML file encoded in some other format, that
+    intermixes 'raw' high-byte characters with high-byte entities,
+    the result will be a broken encoding.
 
 ### v0.6.1 2014-Sep-25
 + Fixes Issue #6, adding support for ASCII hexadecimal entities (e.g. `&#x3c;`). (Thanks Leorex/Ben Bishop)
