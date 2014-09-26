@@ -144,7 +144,7 @@ In this case no table will have a `parent` attribute, elements will not have the
   - `<foo> 5 < 6 </foo>` is seen as valid text contents
 - No support for custom entity expansion other than the standard XML
   entities (`&lt; &gt; &quot; &apos; &amp;`) and numeric ASCII entities
-  (e.g. `&#10;`)
+  (e.g. `&#10;` or `&#x3c;`)
 - XML Declarations (`<?xml version="1.x"?>`) are incorrectly reported
   as Processing Instructions
 - No support for DTDs
@@ -158,7 +158,7 @@ In this case no table will have a `parent` attribute, elements will not have the
 ## History
 
 ### v0.6.1 2014-Sep-25
-+ Fixes Issue #6, adding support for hexadecimal entities (e.g. `&#x263a;`). (Thanks Leorex/Ben Bishop)
++ Fixes Issue #6, adding support for ASCII hexadecimal entities (e.g. `&#x3c;`). (Thanks Leorex/Ben Bishop)
 
 ### v0.6 2014-Apr-18
 + Fixes Issue #5 (and more): Namespace prefixes defined on element are now properly applied to the element itself and any attributes using them when the definitions appear later in source than the prefix usage. (Thanks Oliver Kroth.)
