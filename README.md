@@ -119,9 +119,9 @@ function elementText(el)
   return table.concat(pieces)
 end
 
-local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>>]]
+local xml  = [[<p>Hello <em>you crazy <b>World</b></em>!</p>]]
 local para = SLAXML:dom(xml).root
-print(elementText(para)) --> "Hello you crazy World!""
+print(elementText(para)) --> "Hello you crazy World!"
 ```
 
 ### A Simpler DOM
