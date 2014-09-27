@@ -20,7 +20,7 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 * Supports unescaped greater-than symbols in attribute content (a common failing for simpler pattern-based parsers).
 * Unescapes named XML entities (`&lt; &gt; &amp; &quot; &apos;`) and numeric entities (e.g. `&#10;`) in attributes and text nodes (but—properly—not in comments or CDATA). Properly handles edge cases like `&#38;amp;`.
 * Optionally ignore whitespace-only text nodes (as appear when indenting XML markup).
-* Includes a DOM parser that is a both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
+* Includes a DOM parser that is both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
 * Does not add any keys to the global namespace.
 
 ## Usage
@@ -63,7 +63,7 @@ local SLAXML = require 'slaxdom' -- also requires slaxml.lua; be sure to copy bo
 local doc = SLAXML:dom(myxml)
 ```
 
-The returned table is a 'document' comprised of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
+The returned table is a 'document' composed of tables for elements, attributes, text nodes, comments, and processing instructions. See the following documentation for what each supports.
 
 ### DOM Table Features
 
@@ -81,28 +81,28 @@ The returned table is a 'document' comprised of tables for elements, attributes,
       * `local someAttr = someEl.attr[1]` : an single attribute table (see below); useful for iterating all attributes of an element, or for disambiguating attributes with the same name in different namespaces
   * <strong>`someEl.kids`</strong> : an array table of child elements, text nodes, comment nodes, and processing instructions
   * <strong>`someEl.el`</strong> : an array table of child elements only
-  * <strong>`someEl.parent`</strong> : reference to the the parent element or document table
+  * <strong>`someEl.parent`</strong> : reference to the parent element or document table
 * **Attribute**
   * <strong>`someAttr.type`</strong> : the string `"attribute"`
   * <strong>`someAttr.name`</strong> : the name of the attribute (without any namespace prefix)
   * <strong>`someAttr.value`</strong> : the string value of the attribute (with XML and numeric entities unescaped)
   * <strong>`someAttr.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
-  * <strong>`someAttr.parent`</strong> : reference to the the owning element table
+  * <strong>`someAttr.parent`</strong> : reference to the owning element table
 * **Text** - for both CDATA and normal text nodes
   * <strong>`someText.type`</strong> : the string `"text"`
   * <strong>`someText.name`</strong> : the string `"#text"`
   * <strong>`someText.value`</strong> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
-  * <strong>`someText.parent`</strong> : reference to the the parent element table
+  * <strong>`someText.parent`</strong> : reference to the parent element table
 * **Comment**
   * <strong>`someComment.type`</strong> : the string `"comment"`
   * <strong>`someComment.name`</strong> : the string `"#comment"`
   * <strong>`someComment.value`</strong> : the string content of the attribute
-  * <strong>`someComment.parent`</strong> : reference to the the parent element or document table
+  * <strong>`someComment.parent`</strong> : reference to the parent element or document table
 * **Processing Instruction**
   * <strong>`someComment.type`</strong> : the string `"pi"`
   * <strong>`someComment.name`</strong> : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
   * <strong>`someComment.value`</strong> : the string content of the PI, i.e. everything but the name
-  * <strong>`someComment.parent`</strong> : reference to the the parent element or document table
+  * <strong>`someComment.parent`</strong> : reference to the parent element or document table
 
 ### Finding Text for a DOM Element
 
