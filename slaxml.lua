@@ -54,28 +54,23 @@ function SLAXML:parse(xml,options)
 	local nsStack = {}
 	local anyElement = false
 
-	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-	local utf8bits = { {0x7FF,{192,32},{128,64}}, {0xFFFF,{224,16},{128,64},{128,64}}, {0x1FFFFF,{240,8},{128,64},{128,64},{128,64}} }
-	function utf8(decimal) -- decode a code point to a utf8-encoded string
-		if decimal<=127 then
-			return char(decimal)
-		else
-			local charbytes = {}
-			for b,lim in ipairs(utf8bits) do
-				if decimal<=lim[1] then
-					for i=b+1,2,-1 do
-						local prefix,max = lim[i+1][1],lim[i+1][2]
-						local mod = decimal % max
-						charbytes[i] = char( prefix + mod )
-						decimal = ( decimal - mod ) / max
-					end
-					charbytes[1] = char( decimal + lim[2][1] )
-					break
+	local utf8markers = { {0x7FF,192}, {0xFFFF,224}, {0x1FFFFF,240} }
+	function utf8(decimal) -- convert unicode code point to utf-8 encoded character string
+		if decimal<128 then return char(decimal) end
+		local charbytes = {}
+		for bytes,vals in ipairs(utf8markers) do
+			if decimal<=vals[1] then
+				for b=bytes+1,2,-1 do
+					local mod = decimal%64
+					decimal = (decimal-mod)/64
+					charbytes[b] = char(128+mod)
 				end
+				charbytes[1] = char(vals[2]+decimal)
+				return concat(charbytes)
 			end
-			return concat(charbytes)
 		end
 	end
+	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
 	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8(tonumber('0'..s)) or orig end  
 	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
 
