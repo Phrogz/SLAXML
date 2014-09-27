@@ -12,18 +12,18 @@ local SLAXML = {
 			print(string.format("<!-- %s -->",content))
 		end,
 		startElement = function(name,nsURI,nsPrefix)
-											 io.write("<")
+			                 io.write("<")
 			if nsPrefix then io.write(nsPrefix,":") end
-											 io.write(name)
+			                 io.write(name)
 			if nsURI    then io.write(" (ns='",nsURI,"')") end
-											 print(">")
+			                 print(">")
 		end,
 		attribute = function(name,value,nsURI,nsPrefix)
-			io.write('  ')
+			                 io.write('  ')
 			if nsPrefix then io.write(nsPrefix,":") end
-											 io.write(name,'=',string.format('%q',value))
+			                 io.write(name,'=',string.format('%q',value))
 			if nsURI    then io.write(" (ns='",nsURI,"')") end
-			io.write("\n")
+			                 io.write("\n")
 		end,
 		text = function(text)
 			print(string.format("  text: %q",text))
