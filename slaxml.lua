@@ -55,7 +55,7 @@ function SLAXML:parse(xml,options)
 	local anyElement = false
 
 	local utf8markers = { {0x7FF,192}, {0xFFFF,224}, {0x1FFFFF,240} }
-	function utf8(decimal) -- convert unicode code point to utf-8 encoded character string
+	local function utf8(decimal) -- convert unicode code point to utf-8 encoded character string
 		if decimal<128 then return char(decimal) end
 		local charbytes = {}
 		for bytes,vals in ipairs(utf8markers) do
