@@ -20,7 +20,8 @@ is syntactically-invalid (not well-formed) to be parsed without reporting an err
 * Supports unescaped greater-than symbols in attribute content (a common failing for simpler pattern-based parsers).
 * Unescapes named XML entities (`&lt; &gt; &amp; &quot; &apos;`) and numeric entities (e.g. `&#10;`) in attributes and text nodes (but—properly—not in comments or CDATA). Properly handles edge cases like `&#38;amp;`.
 * Optionally ignore whitespace-only text nodes (as appear when indenting XML markup).
-* Includes a DOM parser that is both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
+* Includes an optional DOM parser that is both a convenient way to pull in XML to use as well as a nice example of using the streaming parser.
+   * DOM module also provides DOM-to-XML serialization, including options for pretty-printing and sorting (making plain-text diffs sane). Parse XML, modify Lua tables, and then round-trip the results back to XML.
 * Does not add any keys to the global namespace.
 
 ## Usage
@@ -68,44 +69,44 @@ The returned table is a 'document' composed of tables for elements, attributes, 
 ### DOM Table Features
 
 * **Document** - the root table returned from the `SLAXML:dom()` method.
-  * <strong>`doc.type`</strong> : the string `"document"`
-  * <strong>`doc.name`</strong> : the string `"#doc"`
-  * <strong>`doc.kids`</strong> : an array table of child processing instructions, the root element, and comment nodes.
-  * <strong>`doc.root`</strong> : the root element for the document
+  * **`doc.type`** : the string `"document"`
+  * **`doc.name`** : the string `"#doc"`
+  * **`doc.kids`** : an array table of child processing instructions, the root element, and comment nodes.
+  * **`doc.root`** : the root element for the document
 * **Element**
-  * <strong>`someEl.type`</strong> : the string `"element"`
-  * <strong>`someEl.name`</strong> : the string name of the element (without any namespace prefix)
-  * <strong>`someEl.nsURI`</strong> : the namespace URI for this element; `nil` if no namespace is applied
-  * <strong>`someAttr.nsPrefix`</strong> : the namespace prefix string; `nil` if no prefix is applied
-  * <strong>`someEl.attr`</strong> : a table of attributes, indexed by name and index
+  * **`someEl.type`** : the string `"element"`
+  * **`someEl.name`** : the string name of the element (without any namespace prefix)
+  * **`someEl.nsURI`** : the namespace URI for this element; `nil` if no namespace is applied
+  * **`someAttr.nsPrefix`** : the namespace prefix string; `nil` if no prefix is applied
+  * **`someEl.attr`** : a table of attributes, indexed by name and index
       * `local value = someEl.attr['attribute-name']` : any namespace prefix of the attribute is not part of the name
       * `local someAttr = someEl.attr[1]` : a single attribute table (see below); useful for iterating all attributes of an element, or for disambiguating attributes with the same name in different namespaces
-  * <strong>`someEl.kids`</strong> : an array table of child elements, text nodes, comment nodes, and processing instructions
-  * <strong>`someEl.el`</strong> : an array table of child elements only
-  * <strong>`someEl.parent`</strong> : reference to the parent element or document table
+  * **`someEl.kids`** : an array table of child elements, text nodes, comment nodes, and processing instructions
+  * **`someEl.el`** : an array table of child elements only
+  * **`someEl.parent`** : reference to the parent element or document table
 * **Attribute**
-  * <strong>`someAttr.type`</strong> : the string `"attribute"`
-  * <strong>`someAttr.name`</strong> : the name of the attribute (without any namespace prefix)
-  * <strong>`someAttr.value`</strong> : the string value of the attribute (with XML and numeric entities unescaped)
-  * <strong>`someAttr.nsURI`</strong> : the namespace URI for the attribute; `nil` if no namespace is applied
-  * <strong>`someAttr.nsPrefix`</strong> : the namespace prefix string; `nil` if no prefix is applied
-  * <strong>`someAttr.parent`</strong> : reference to the owning element table
+  * **`someAttr.type`** : the string `"attribute"`
+  * **`someAttr.name`** : the name of the attribute (without any namespace prefix)
+  * **`someAttr.value`** : the string value of the attribute (with XML and numeric entities unescaped)
+  * **`someAttr.nsURI`** : the namespace URI for the attribute; `nil` if no namespace is applied
+  * **`someAttr.nsPrefix`** : the namespace prefix string; `nil` if no prefix is applied
+  * **`someAttr.parent`** : reference to the owning element table
 * **Text** - for both CDATA and normal text nodes
-  * <strong>`someText.type`</strong> : the string `"text"`
-  * <strong>`someText.name`</strong> : the string `"#text"`
-  * <strong>`someText.cdata`</strong> : `true` if the text was from a CDATA block
-  * <strong>`someText.value`</strong> : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
-  * <strong>`someText.parent`</strong> : reference to the parent element table
+  * **`someText.type`** : the string `"text"`
+  * **`someText.name`** : the string `"#text"`
+  * **`someText.cdata`** : `true` if the text was from a CDATA block
+  * **`someText.value`** : the string content of the text node (with XML and numeric entities unescaped for non-CDATA elements)
+  * **`someText.parent`** : reference to the parent element table
 * **Comment**
-  * <strong>`someComment.type`</strong> : the string `"comment"`
-  * <strong>`someComment.name`</strong> : the string `"#comment"`
-  * <strong>`someComment.value`</strong> : the string content of the attribute
-  * <strong>`someComment.parent`</strong> : reference to the parent element or document table
+  * **`someComment.type`** : the string `"comment"`
+  * **`someComment.name`** : the string `"#comment"`
+  * **`someComment.value`** : the string content of the attribute
+  * **`someComment.parent`** : reference to the parent element or document table
 * **Processing Instruction**
-  * <strong>`someComment.type`</strong> : the string `"pi"`
-  * <strong>`someComment.name`</strong> : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
-  * <strong>`someComment.value`</strong> : the string content of the PI, i.e. everything but the name
-  * <strong>`someComment.parent`</strong> : reference to the parent element or document table
+  * **`somePI.type`** : the string `"pi"`
+  * **`somePI.name`** : the string name of the PI, e.g. `<?foo …?>` has a name of `"foo"`
+  * **`somePI.value`** : the string content of the PI, i.e. everything but the name
+  * **`somePI.parent`** : reference to the parent element or document table
 
 ### Finding Text for a DOM Element
 
