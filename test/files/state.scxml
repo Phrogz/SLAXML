@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" xmlns:nv="http://nvidia.com/drive/ar/scxml" xmlns:dumb="nope" version="1">
+  <state id="AwaitingChoice" nv:loc="0 0 400 300">
+    <state id="UpToDate" nv:rgba="0 0.5 1 0.2"  nv:loc="10 10 100 40">
+      <transition event="ota.available" nv:anchor="e1" target="UpdateAvailable" dumb:status="very" type="internal"/>
+    </state>
+  </state>
+  <dumb:wrapper>
+    <state />
+  </dumb:wrapper>
+</scxml>

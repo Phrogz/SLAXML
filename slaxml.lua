@@ -1,9 +1,9 @@
 --[=====================================================================[
-v0.7 Copyright © 2013-2014 Gavin Kistner <!@phrogz.net>; MIT Licensed
+v0.8 Copyright © 2013-2018 Gavin Kistner <!@phrogz.net>; MIT Licensed
 See http://github.com/Phrogz/SLAXML for details.
 --]=====================================================================]
 local SLAXML = {
-	VERSION = "0.7",
+	VERSION = "0.8",
 	_call = {
 		pi = function(target,content)
 			print(string.format("<?%s %s?>",target,content))
@@ -25,11 +25,13 @@ local SLAXML = {
 			if nsURI    then io.write(" (ns='",nsURI,"')") end
 			                 io.write("\n")
 		end,
-		text = function(text)
-			print(string.format("  text: %q",text))
+		text = function(text,cdata)
+			print(string.format("  %s: %q",cdata and 'cdata' or 'text',text))
 		end,
 		closeElement = function(name,nsURI,nsPrefix)
-			print(string.format("</%s>",name))
+			                 io.write("</")
+			if nsPrefix then io.write(nsPrefix,":") end
+			                 print(name..">")
 		end,
 	}
 }
@@ -71,7 +73,7 @@ function SLAXML:parse(xml,options)
 		end
 	end
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
-	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8(tonumber('0'..s)) or orig end  
+	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8(tonumber('0'..s)) or orig end
 	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
 
 	local function finishText()
@@ -82,7 +84,7 @@ function SLAXML:parse(xml,options)
 				text = gsub(text,'%s+$','')
 				if #text==0 then text=nil end
 			end
-			if text then self._call.text(unescape(text)) end
+			if text then self._call.text(unescape(text),false) end
 		end
 	end
 
@@ -180,7 +182,7 @@ function SLAXML:parse(xml,options)
 		first, last, match1 = find( xml, '^<!%[CDATA%[(.-)%]%]>', pos )
 		if first then
 			finishText()
-			if self._call.text then self._call.text(match1) end
+			if self._call.text then self._call.text(match1,true) end
 			pos = last+1
 			textStart = pos
 			return true
@@ -233,7 +235,7 @@ function SLAXML:parse(xml,options)
 
 	while pos<#xml do
 		if state=="text" then
-			if not (findPI() or findComment() or findCDATA() or findElementClose()) then		
+			if not (findPI() or findComment() or findCDATA() or findElementClose()) then
 				if startElement() then
 					state = "attributes"
 				else

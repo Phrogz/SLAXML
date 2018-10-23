@@ -1,10 +1,7 @@
 package.path = '../?.lua;' .. package.path
+_ENV = require('lunity')()
 
 local SLAXML = require 'slaxdom'
-require 'io'
-require 'lunity'
-
-module( 'TEST_SLAXML', lunity )
 
 local XML = {}
 for filename in io.popen('ls files'):lines() do
@@ -24,7 +21,7 @@ local function countParsings(xmlName,options,expected)
 	end
 end
 
-function test_namespace()
+function test:namespace()
 	local elementStack = {}
 	SLAXML:parser{
 		startElement = function(name,nsURI)
@@ -38,7 +35,7 @@ function test_namespace()
 	}:parse(XML['namespace_prefix'])
 end
 
-function test_dom()
+function test:dom()
 	local function checkParentage(el)
 		for _,child in ipairs(el.kids) do
 			assertEqual(child.parent,el,("'%s' children should have a .parent pointing to their parent '%s'"):format(child.type,el.type))
@@ -49,8 +46,8 @@ function test_dom()
 	local doc = SLAXML:dom(XML['entities_and_namespaces'])
 	assertEqual(doc.type,'document')
 	assertEqual(doc.kids[1].type,'pi')
-	assertEqual(#doc.kids,2)
-	assertEqual(doc.kids[2],doc.root)
+	assertEqual(#doc.kids,3)
+	assertEqual(doc.kids[3],doc.root)
 	assertEqual(#doc.root.kids,7)
 	assertEqual(#doc.root.el,3)
 	assertEqual(doc.root.attr.version,"1.0")
@@ -78,7 +75,7 @@ function test_dom()
 	end
 end
 
-function test_slim_and_trim_dom()
+function test:slim_and_trim_dom()
 	local function checkParentage(el)
 		for _,child in ipairs(el.kids) do
 			assertNil(child.parent,'"slim" dom children should not have a parent')
@@ -90,30 +87,30 @@ function test_slim_and_trim_dom()
 	assertEqual(doc.type,'document')
 	assertEqual(doc.kids[1].type,'pi')
 	assertEqual(#doc.kids,2)
-	assertEqual(doc.kids[2],doc.root)
-	assertEqual(#doc.root.kids,3)
-	assertNil(doc.root.el)
-	assertNil(doc.root.attr.version)
-	assertNil(doc.root.attr.xmlns)
-	assertNil(doc.root.attr['xmlns:p'])
-	assertEqual(#doc.root.attr,3)
+	local root = doc.kids[2]
+	assertEqual(#root.kids,3)
+	assertNil(root.el)
+	assertNil(root.attr.version)
+	assertNil(root.attr.xmlns)
+	assertNil(root.attr['xmlns:p'])
+	assertEqual(#root.attr,3)
 
 	checkParentage(doc)
 
-	local s = doc.root.kids[1]
+	local s = root.kids[1]
 	assertEqual(s.name,'script')
 	assertEqual(s.type,'element')
 	assertEqual(#s.kids,2)
 	assertEqual(s.kids[1].type,'text')
 	assertEqual(s.kids[2].type,'text')
 
-	local t = doc.root.kids[2].kids[1]
+	local t = root.kids[2].kids[1]
 	assertEqual(t.name,'transition')
 	assertEqual(#t.kids,5)
 	assertEqual(t.kids[3].type,'comment')
 end
 
-function test_dom_entities()
+function test:dom_entities()
 	local doc = SLAXML:dom(XML['entities_and_namespaces'])
 	local s = doc.root.el[1]
 	assertEqual(s.kids[1].value,' ampersand = "&"; ')
@@ -125,7 +122,7 @@ function test_dom_entities()
 	assertEqual(t.kids[6].value,' your code &gt; all ')
 end
 
-function test_xml_namespace()
+function test:xml_namespace()
 	local doc = SLAXML:dom(XML['xml_namespace'])
 	for i,attr in ipairs(doc.root.attr) do
 		if attr.name=='space' then
@@ -135,7 +132,7 @@ function test_xml_namespace()
 	end
 end
 
-function test_xml_namespace_immediate_use()
+function test:xml_namespace_immediate_use()
 	local doc = SLAXML:dom(XML['namespace_declare_and_use'])
 	local cat1 = doc.root.el[1]
 	assertEqual(cat1.name,'cat')
@@ -171,7 +168,11 @@ function test_xml_namespace_immediate_use()
 	assertEqual(cog2.nsURI,'cog')
 end
 
-function test_dom_namespaces()
+function test:dom_serializer()
+
+end
+
+function test:dom_namespaces()
 	local scxmlNS  = "http://www.w3.org/2005/07/scxml"
 	local phrogzNS = "http://phrogz.net/"
 	local barNS    = "bar"
@@ -216,7 +217,7 @@ function test_dom_namespaces()
 	assertEqual(nsByValue['a3-y'],yNS)
 end
 
-function testz_invalid_documents()
+function test:invalid_documents()
 	local silentParser = SLAXML:parser{}
 	assertErrors(silentParser.parse, silentParser, XML['invalid_unquoted']        )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_pi_only']         )
@@ -224,7 +225,97 @@ function testz_invalid_documents()
 	assertErrors(silentParser.parse, silentParser, XML['invalid_literal_gtamplt'] )
 end
 
-function test_simplest()
+function test:comments()
+	countParsings('commentwrapper',{},{
+		pi           = 0,
+		comment      = 2,
+		startElement = 1,
+		attribute    = 0,
+		text         = 2,
+		namespace    = 0,
+	})
+end
+
+function test:serializer()
+	local doc = SLAXML:dom(XML['commentwrapper'],{})
+	local xml = SLAXML:xml(doc)
+	assertEqual(xml, XML['commentwrapper'])
+
+	local doc = SLAXML:dom(XML['commentwrapper'],{stripWhitespace=true})
+	local xml = SLAXML:xml(doc,{indent='\t'})
+	assertEqual(xml, '<!-- before -->\n<r/>\n<!-- after -->')
+
+	local doc = SLAXML:dom(XML['utf8'],{stripWhitespace=true})
+
+	local xml = SLAXML:xml(doc)
+	assertEqual(xml, [[<?xml version="1.0" encoding="utf-8"?><root><s a="crêpes: €3">crêpes: €3</s><s a="crêpes: €3">crêpes: €3</s><s a="crêpes: €3">crêpes: €3</s></root>]])
+
+	local xml = SLAXML:xml(doc,{indent='\t'})
+	assertEqual(xml, [[<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<s a="crêpes: €3">
+		crêpes: €3
+	</s>
+	<s a="crêpes: €3">
+		crêpes: €3
+	</s>
+	<s a="crêpes: €3">
+		crêpes: €3
+	</s>
+</root>]])
+
+	local xml = SLAXML:xml(doc,{indent=3})
+	assertEqual(xml, [[<?xml version="1.0" encoding="utf-8"?>
+<root>
+   <s a="crêpes: €3">
+      crêpes: €3
+   </s>
+   <s a="crêpes: €3">
+      crêpes: €3
+   </s>
+   <s a="crêpes: €3">
+      crêpes: €3
+   </s>
+</root>]])
+end
+
+function test:serialize_sorting()
+	local doc = SLAXML:dom(XML['state'],{stripWhitespace=true})
+
+	local xml = SLAXML:xml(doc,{omit={'nope', 'http://nvidia.com/drive/ar/scxml', 'http://www.w3.org/2005/07/scxml'}})
+	assertEqual(xml, '<?xml version="1.0" encoding="UTF-8"?>')
+
+	local xml = SLAXML:xml(doc,{sort=true, omit={'nope', 'http://nvidia.com/drive/ar/scxml'}})
+	assertEqual(xml, '<?xml version="1.0" encoding="UTF-8"?><scxml version="1" xmlns="http://www.w3.org/2005/07/scxml"><state id="AwaitingChoice"><state id="UpToDate"><transition event="ota.available" target="UpdateAvailable" type="internal"/></state></state></scxml>')
+
+	local xml = SLAXML:xml(doc,{indent='\t', sort=true, omit={'nope'}})
+	assertEqual(xml, [====[<?xml version="1.0" encoding="UTF-8"?>
+<scxml version="1" xmlns="http://www.w3.org/2005/07/scxml" xmlns:nv="http://nvidia.com/drive/ar/scxml">
+	<state id="AwaitingChoice" nv:loc="0 0 400 300">
+		<state id="UpToDate" nv:loc="10 10 100 40" nv:rgba="0 0.5 1 0.2">
+			<transition event="ota.available" target="UpdateAvailable" type="internal" nv:anchor="e1"/>
+		</state>
+	</state>
+</scxml>]====])
+
+	local xml = SLAXML:xml(doc,{indent='\t', sort=true})
+	assertEqual(xml, [====[<?xml version="1.0" encoding="UTF-8"?>
+<scxml version="1" xmlns="http://www.w3.org/2005/07/scxml" xmlns:dumb="nope" xmlns:nv="http://nvidia.com/drive/ar/scxml">
+	<state id="AwaitingChoice" nv:loc="0 0 400 300">
+		<state id="UpToDate" nv:loc="10 10 100 40" nv:rgba="0 0.5 1 0.2">
+			<transition event="ota.available" target="UpdateAvailable" type="internal" dumb:status="very" nv:anchor="e1"/>
+		</state>
+	</state>
+	<dumb:wrapper>
+		<state/>
+	</dumb:wrapper>
+</scxml>]====])
+
+
+
+end
+
+function test:simplest()
 	countParsings('root_only',{},{
 		pi           = 0,
 		comment      = 0,
@@ -235,7 +326,7 @@ function test_simplest()
 	})
 end
 
-function test_whitespace()
+function test:whitespace()
 	countParsings('lotsaspace',{},{
 		pi           = 0,
 		comment      = 0,
@@ -260,7 +351,7 @@ function test_whitespace()
 	assertEqual(a.kids[2].value,"\nIt's a [raw][[raw]] >\nstring that <do/> not care\n	about honey badgers.\n\n  ")
 end
 
-function test_utf8()
+function test:utf8()
 	local root = SLAXML:dom(XML['utf8'],{stripWhitespace=true}).root
 	for _,s in ipairs(root.kids) do
 		assertEqual(s.attr.a,"crêpes: €3")
@@ -268,4 +359,4 @@ function test_utf8()
 	end
 end
 
-runTests{ useANSI=false }
+test{useANSI=false}
