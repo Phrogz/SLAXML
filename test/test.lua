@@ -245,6 +245,10 @@ function test:serializer()
 	local xml = SLAXML:xml(doc,{indent='\t'})
 	assertEqual(xml, '<!-- before -->\n<r/>\n<!-- after -->')
 
+	local doc = SLAXML:dom(XML['cdata'])
+	local xml = SLAXML:xml(doc)
+	assertEqual(xml, XML['cdata'])
+
 	local doc = SLAXML:dom(XML['utf8'],{stripWhitespace=true})
 
 	local xml = SLAXML:xml(doc)
