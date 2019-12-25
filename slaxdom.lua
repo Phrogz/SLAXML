@@ -112,7 +112,7 @@ function SLAXML:xml(n,opts)
 
 	function ser.text(n,depth)
 		if n.cdata then
-			table.insert(out, tab:rep(depth)..'<![[CDATA['..n.value..']]>')
+			table.insert(out, tab:rep(depth)..'<![CDATA['..n.value..']]>')
 		else
 			table.insert(out, tab:rep(depth)..esc(n.value))
 		end
