@@ -257,6 +257,9 @@ So, if you want to use a `foo` prefix on an element or attribute, be sure to add
 
 ## History
 
+### v0.8.1 2022-Dec-31
++ Updating rockspec to prepare for LuaRocks
+
 ### v0.8 2018-Oct-23
 + Adds `SLAXML:xml()` to serialize the DOM back to XML.
 + Adds `nsPrefix` properties to the DOM tables for elements and attributes (needed for round-trip serialization)

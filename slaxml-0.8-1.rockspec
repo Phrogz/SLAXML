@@ -1,7 +1,8 @@
 package = "SLAXML"
-version = "0.8-0"
+version = "0.8-1"
 source = {
-  url = "https://github.com/Phrogz/SLAXML.git"
+  url = "git://github.com/Phrogz/SLAXML",
+  tag = "v0.8.1"
 }
 description = {
   summary = "SAX-like streaming XML parser for Lua",
@@ -11,7 +12,7 @@ description = {
       It is currently not a truly valid XML parser, however, as it allows certain XML that is syntactically-invalid (not well-formed) to be parsed without reporting an error.
     ]],
   homepage = "https://github.com/Phrogz/SLAXML",
-  maintainer = "Gavin Kistner <avin@phrogz.net>",
+  maintainer = "Gavin Kistner <gavin@phrogz.net>",
   license = "MIT"
 }
 dependencies = {
