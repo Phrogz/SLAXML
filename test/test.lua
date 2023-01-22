@@ -1,4 +1,4 @@
-package.path = '../?.lua;' .. package.path
+package.path = '../lib/?.lua;' .. package.path
 _ENV = require('lunity')()
 
 local SLAXML = require 'slaxdom'
