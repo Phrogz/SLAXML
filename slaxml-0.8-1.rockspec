@@ -2,7 +2,7 @@ package = "SLAXML"
 version = "0.8-1"
 source = {
   url = "git://github.com/Phrogz/SLAXML",
-  tag = "v0.8.1"
+  tag = "v0.8"
 }
 description = {
   summary = "SAX-like streaming XML parser for Lua",
