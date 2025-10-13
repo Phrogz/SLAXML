@@ -1,5 +1,10 @@
 package.path = '../?.lua;' .. package.path
-_ENV = require('lunity')()
+local env = require('lunity')()
+if _VERSION:find("5.1") then
+  setfenv(1, env)
+else
+  _ENV = env
+end
 
 local SLAXML = require 'slaxdom'
 
