@@ -223,7 +223,7 @@ function test:dom_namespaces()
 end
 
 function test:invalid_documents()
-	local silentParser = SLAXML:parser{}
+	local silentParser = SLAXML:parser{ text = function() end }
 	assertErrors(silentParser.parse, silentParser, XML['invalid_unquoted']        )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_pi_only']         )
 	assertErrors(silentParser.parse, silentParser, XML['invalid_unclosed_tags']   )

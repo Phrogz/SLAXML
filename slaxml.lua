@@ -74,7 +74,13 @@ function SLAXML:parse(xml,options)
 	end
 	local entityMap  = { ["lt"]="<", ["gt"]=">", ["amp"]="&", ["quot"]='"', ["apos"]="'" }
 	local entitySwap = function(orig,n,s) return entityMap[s] or n=="#" and utf8(tonumber('0'..s)) or orig end
-	local function unescape(str) return gsub( str, '(&(#?)([%d%a]+);)', entitySwap ) end
+	local function unescape(str)
+	    local s = gsub(str, '(&(#?)([%d%a]+);)', "") -- remove all valid entities
+	    if find(s, '&') then
+	        error("Invalid ampersand in string: "..str)
+	    end
+	    return gsub( str, '(&(#?)([%d%a]+);)', entitySwap )
+	end
 
 	local function finishText()
 		if first>textStart and self._call.text then
@@ -135,7 +141,7 @@ function SLAXML:parse(xml,options)
 				for i=#nsStack,1,-1 do if nsStack[i]['!'] then currentElement[2] = nsStack[i]['!']; break end end
 			end
 			currentAttributeCt = 0
-			push(nsStack,{})
+			push(nsStack,{['__name__']=currentElement[1]})
 			return true
 		end
 	end
@@ -153,6 +159,8 @@ function SLAXML:parse(xml,options)
 				if first then
 					pos = last+1
 					match2 = unescape(match2)
+				else
+					error("Attribute value must be quoted for attribute: "..match1)
 				end
 			end
 		end
@@ -225,6 +233,7 @@ function SLAXML:parse(xml,options)
 		end
 		if first then
 			finishText()
+			if nsStack[#nsStack]['__name__'] ~= match1 then error("Mismatched closing tag: expected "..nsStack[#nsStack]['__name__']..", got "..match1) end
 			if self._call.closeElement then self._call.closeElement(match1,nsURI) end
 			pos = last+1
 			textStart = pos
